@@ -3,8 +3,8 @@ package js
 import (
 	"strings"
 
-	"github.com/shirou/gopsutil/host"
 	js "github.com/wisepythagoras/leebra/js/clipboard"
+	"github.com/wisepythagoras/leebra/system"
 	"rogchap.com/v8go"
 )
 
@@ -22,14 +22,21 @@ func (nav *Navigator) GetClipboardObject() (*v8go.ObjectTemplate, error) {
 }
 
 // GetPlatform returns the platform information.
-func (nav *Navigator) GetPlatform() (string, error) {
-	info, err := host.Info()
+func (nav *Navigator) GetPlatform() string {
+	return system.GetOS() + " " + system.GetKernelArch()
+}
 
-	if err != nil {
-		return "", err
-	}
+// GetUserAgent returns the user agent string.
+func (nav *Navigator) GetUserAgent() string {
+	platform := nav.GetPlatform()
+	details := strings.Join([]string{
+		system.GetFlavor(),
+		platform,
+		"rv:" + system.Version,
+	}[:], "; ")
+	browser := system.Name + "/" + system.Version
 
-	return strings.Title(info.OS) + " " + info.KernelArch, nil
+	return "Mozilla/5.0 (" + details + ") Gecko/20100101 " + browser
 }
 
 // GetV8Object creates the V8 object.
@@ -40,15 +47,16 @@ func (nav *Navigator) GetV8Object() (*v8go.ObjectTemplate, error) {
 		return nil, err
 	}
 
-	navigatorObj.Set("userAgent", "My UserAgent", v8go.ReadOnly)
+	platform := nav.GetPlatform()
+
+	navigatorObj.Set("userAgent", nav.GetUserAgent(), v8go.ReadOnly)
 	navigatorObj.Set("cookieEnabled", false, v8go.ReadOnly)
 	navigatorObj.Set("doNotTrack", true, v8go.ReadOnly)
 	navigatorObj.Set("vendor", "", v8go.ReadOnly)
 	navigatorObj.Set("maxTouchPoints", 0, v8go.ReadOnly)
 	navigatorObj.Set("webdriver", false, v8go.ReadOnly)
 	navigatorObj.Set("javaEnabled", false, v8go.ReadOnly)
-
-	platform, _ := nav.GetPlatform()
+	navigatorObj.Set("product", "Leebra", v8go.ReadOnly)
 	navigatorObj.Set("platform", platform)
 	navigatorObj.Set("oscpu", platform)
 

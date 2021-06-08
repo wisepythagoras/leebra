@@ -1,6 +1,6 @@
 const what = 'world'
 
-console.log('Hello', what, 1, true, null, navigator.platform);
+console.log('Hello', what, 1, true, null, navigator.userAgent);
 
 const add = (a, b) => a + b;
 
