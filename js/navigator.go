@@ -59,10 +59,12 @@ func (nav *Navigator) GetV8Object() (*v8go.ObjectTemplate, error) {
 	navigatorObj.Set("product", "Leebra", v8go.ReadOnly)
 	navigatorObj.Set("platform", platform, v8go.ReadOnly)
 	navigatorObj.Set("oscpu", platform, v8go.ReadOnly)
+	navigatorObj.Set("language", system.Language, v8go.ReadOnly)
+
+	// The following 3 are deprecated.
 	navigatorObj.Set("appName", "Netscape", v8go.ReadOnly)
 	navigatorObj.Set("appCodeName", system.Name, v8go.ReadOnly)
 	navigatorObj.Set("appVersion", "5.0 (X11)", v8go.ReadOnly)
-	navigatorObj.Set("language", system.Language, v8go.ReadOnly)
 
 	clipboardObj, err := nav.GetClipboardObject()
 
