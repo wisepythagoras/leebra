@@ -22,11 +22,16 @@ func main() {
 		return
 	}
 
+	if *run == "" {
+		fmt.Println("Invalid or no such JS file")
+		return
+	}
+
 	// Read the JS file.
 	bin, err := utils.ReadFile(*run)
 
-	if *run == "" {
-		fmt.Println("Invalid or no such JS file")
+	if err != nil {
+		fmt.Println(err)
 		return
 	}
 
@@ -48,8 +53,6 @@ func main() {
 		Context: "about:blank",
 	}
 	localStorage.Init()
-	localStorageObj, _ := localStorage.GetV8Object()
-	obj.Set("localStorage", localStorageObj, v8go.ReadOnly)
 
 	// This adds the fetch function polyfills.
 	if err := fetch.InjectTo(vm, obj); err != nil {
@@ -58,6 +61,7 @@ func main() {
 
 	// Create a new context.
 	ctx, _ := v8go.NewContext(vm, obj)
+	localStorage.ExecContext = ctx
 
 	// Inject the console polyfill.
 	if err := console.InjectTo(ctx); err != nil {
@@ -65,27 +69,45 @@ func main() {
 	}
 
 	global := ctx.Global()
+	lsObj, _ := localStorage.GetJSObject()
+	global.Set("localStorage", lsObj)
 
 	// With this hack we create the window object.
 	thisObj, _ := global.Get("this")
 	global.Set("window", thisObj)
 
-	val, err := ctx.RunScript(string(bin), *run)
+	vals := make(chan *v8go.Value, 1)
+	errs := make(chan error, 1)
 
-	if err != nil {
-		fmt.Println("Error", err)
-	}
-
-	if val.IsPromise() {
-		prom, err := val.AsPromise()
+	go func() {
+		val, err := ctx.RunScript(string(bin), *run)
 
 		if err != nil {
-			fmt.Println(err)
+			errs <- err
+			fmt.Println("Error", err)
 		}
 
-		// Wait for the promise to resolve.
-		for prom.State() == v8go.Pending {
-			continue
+		vals <- val
+	}()
+
+	select {
+	case val := <-vals:
+		if val.IsPromise() {
+			prom, err := val.AsPromise()
+
+			if err != nil {
+				fmt.Println(err)
+			}
+
+			// Wait for the promise to resolve.
+			for prom.State() == v8go.Pending {
+				continue
+			}
+		} else {
+			fmt.Println(val)
 		}
+	case err := <-errs:
+		err = err.(*v8go.JSError)
+		fmt.Printf("Error: %+v\n", err)
 	}
 }

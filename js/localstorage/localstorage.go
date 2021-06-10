@@ -17,11 +17,14 @@ const (
 
 // LocalStorage defines the LocalStorage API.
 type LocalStorage struct {
-	VM       *v8go.Isolate
-	DB       *db.KVDatabase
-	Context  string
-	length   int32
-	onChange func(LocalStorageOp)
+	VM              *v8go.Isolate
+	DB              *db.KVDatabase
+	ExecContext     *v8go.Context
+	Context         string
+	length          int32
+	keys            [][]byte
+	localStorageObj *v8go.Object
+	onChange        func(LocalStorageOp)
 }
 
 // Init creates the key-value database
@@ -47,8 +50,22 @@ func (ls *LocalStorage) ensureDBIsOpen() error {
 
 		if err != nil || !opened {
 			err := errors.New("Unable to open db")
-			fmt.Errorf(err.Error())
+			fmt.Println(err.Error())
 			return err
+		}
+
+		// Get the keys in the db.
+		ls.keys = ls.DB.GetKeys()
+		ls.length = int32(len(ls.keys))
+
+		// If the values are different, then update.
+		if ls.localStorageObj != nil {
+			val, _ := ls.localStorageObj.Get("length")
+
+			if val.Int32() != ls.length {
+				ls.localStorageObj.Delete("length")
+				ls.localStorageObj.Set("length", ls.length)
+			}
 		}
 	}
 
@@ -69,7 +86,20 @@ func (ls *LocalStorage) SetItemFunction() (*v8go.FunctionTemplate, error) {
 		key := args[0].Object().String()
 		value := args[1].Object().String()
 
-		ls.ensureDBIsOpen()
+		err := ls.ensureDBIsOpen()
+
+		if err != nil {
+			ls.ExecContext.RunScript("throw 'Unable to access index'", "")
+			return nil
+		}
+
+		// Check if the key is already in the DB.
+		existingData, err := ls.DB.Get([]byte(key))
+
+		if err != nil {
+			ls.ExecContext.RunScript("throw 'Unable to access DB'", "")
+			return nil
+		}
 
 		// Insert the item to the db.
 		inserted, err := ls.DB.Insert([]byte(key), []byte(value))
@@ -79,7 +109,9 @@ func (ls *LocalStorage) SetItemFunction() (*v8go.FunctionTemplate, error) {
 			return nil
 		}
 
-		ls.onChange(LocalStorageInsert)
+		if existingData == nil {
+			ls.onChange(LocalStorageInsert)
+		}
 
 		return nil
 	})
@@ -132,7 +164,43 @@ func (ls *LocalStorage) GetV8Object() (*v8go.ObjectTemplate, error) {
 	ls.Init()
 
 	// This will contain the LocalStorage API structure.
-	localStorageObj, err := v8go.NewObjectTemplate(ls.VM)
+	localStorage, err := v8go.NewObjectTemplate(ls.VM)
+
+	if err != nil {
+		return nil, err
+	}
+
+	// Set the default length to whatever the amount of items in the database.
+	localStorage.Set("length", ls.length)
+
+	setItemFn, err := ls.SetItemFunction()
+
+	if err != nil {
+		return nil, err
+	}
+
+	localStorage.Set("setItem", setItemFn, v8go.ReadOnly)
+
+	getItemFn, err := ls.GetItemFunction()
+
+	if err != nil {
+		return nil, err
+	}
+
+	localStorage.Set("getItem", getItemFn, v8go.ReadOnly)
+
+	return localStorage, nil
+}
+
+// GetJSObject returns the JS Object that can be mutated.
+func (ls *LocalStorage) GetJSObject() (*v8go.Object, error) {
+	localStorage, err := ls.GetV8Object()
+
+	if err != nil {
+		return nil, err
+	}
+
+	ls.localStorageObj, err = localStorage.NewInstance(ls.ExecContext)
 
 	if err != nil {
 		return nil, err
@@ -145,30 +213,10 @@ func (ls *LocalStorage) GetV8Object() (*v8go.ObjectTemplate, error) {
 			ls.length -= 1
 		}
 
-		// Undate the length.
-		err := localStorageObj.Set("length", ls.length)
+		ls.localStorageObj.Delete("length")
 
-		fmt.Println("Update", ls.length, err)
+		ls.localStorageObj.Set("length", ls.length)
 	}
 
-	// Set the default length to whatever the amount of items in the database.
-	localStorageObj.Set("length", ls.length)
-
-	setItemFn, err := ls.SetItemFunction()
-
-	if err != nil {
-		return nil, err
-	}
-
-	localStorageObj.Set("setItem", setItemFn, v8go.ReadOnly)
-
-	getItemFn, err := ls.GetItemFunction()
-
-	if err != nil {
-		return nil, err
-	}
-
-	localStorageObj.Set("getItem", getItemFn, v8go.ReadOnly)
-
-	return localStorageObj, nil
+	return ls.localStorageObj, nil
 }

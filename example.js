@@ -1,5 +1,6 @@
 const what = 'world'
 
+console.log(JSON, localStorage)
 console.log('Hello', what, 1, true, null, navigator.userAgent);
 
 localStorage.setItem('test', 'This is a test');

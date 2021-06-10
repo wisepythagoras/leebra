@@ -8,6 +8,8 @@ import (
 	"github.com/wisepythagoras/leebra/utils"
 )
 
+type IteratorFn func(txn *badger.Txn) error
+
 // DB defines our database object handler.
 type KVDatabase struct {
 	Name string
@@ -126,5 +128,35 @@ func (d *KVDatabase) Delete(key []byte) error {
 		return err
 	}
 
+	// Commit the changes to the database.
+	if err = txn.Commit(); err != nil {
+		return err
+	}
+
 	return nil
+}
+
+// GetKeys gets the list of keys.
+func (d *KVDatabase) GetKeys() [][]byte {
+	// Create the new transaction, that should not allow updates.
+	txn := d.db.NewTransaction(false)
+	defer txn.Discard()
+
+	opts := badger.DefaultIteratorOptions
+
+	// We don't want any of the values.
+	opts.PrefetchValues = false
+
+	// This array will contain all of our keys and we'll just return this.
+	var keys [][]byte = [][]byte{}
+
+	it := txn.NewIterator(opts)
+	defer it.Close()
+
+	for it.Rewind(); it.Valid(); it.Next() {
+		item := it.Item()
+		keys = append(keys, item.Key())
+	}
+
+	return keys
 }
