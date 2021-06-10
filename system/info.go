@@ -6,6 +6,7 @@ import (
 	"github.com/shirou/gopsutil/host"
 )
 
+// GetKernelArch returns the architecture of the host system.
 func GetKernelArch() string {
 	info, err := host.Info()
 
@@ -16,6 +17,7 @@ func GetKernelArch() string {
 	return info.KernelArch
 }
 
+// GetOS returns the operating system (Linux, Windows, etc).
 func GetOS() string {
 	info, err := host.Info()
 
@@ -26,6 +28,7 @@ func GetOS() string {
 	return strings.Title(info.OS)
 }
 
+// GetFlavor should return "Ubuntu", or whatever the system is.
 func GetFlavor() string {
 	info, err := host.Info()
 

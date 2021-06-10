@@ -3,6 +3,7 @@ module github.com/wisepythagoras/leebra
 go 1.16
 
 require (
+	github.com/dgraph-io/badger/v3 v3.2103.0 // indirect
 	github.com/dop251/goja v0.0.0-20210427212725-462d53687b0d
 	github.com/shirou/gopsutil v3.21.5+incompatible
 	github.com/tklauser/go-sysconf v0.3.6 // indirect

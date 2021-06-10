@@ -2,6 +2,11 @@ const what = 'world'
 
 console.log('Hello', what, 1, true, null, navigator.userAgent);
 
+localStorage.setItem('test', 'This is a test');
+const val = localStorage.getItem('test');
+
+console.log(`Local storage content: "${val}"`);
+
 const add = (a, b) => a + b;
 
 const fetchTest = async () => {

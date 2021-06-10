@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/wisepythagoras/leebra/js"
+	ls "github.com/wisepythagoras/leebra/js/localstorage"
 	"github.com/wisepythagoras/leebra/utils"
 	"go.kuoruan.net/v8go-polyfills/console"
 	"go.kuoruan.net/v8go-polyfills/fetch"
@@ -41,6 +42,14 @@ func main() {
 	}
 	navigatorObj, _ := navigator.GetV8Object()
 	obj.Set("navigator", navigatorObj, v8go.ReadOnly)
+
+	localStorage := &ls.LocalStorage{
+		VM:      vm,
+		Context: "about:blank",
+	}
+	localStorage.Init()
+	localStorageObj, _ := localStorage.GetV8Object()
+	obj.Set("localStorage", localStorageObj, v8go.ReadOnly)
 
 	// This adds the fetch function polyfills.
 	if err := fetch.InjectTo(vm, obj); err != nil {
