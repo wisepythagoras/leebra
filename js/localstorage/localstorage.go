@@ -8,12 +8,20 @@ import (
 	"rogchap.com/v8go"
 )
 
+type LocalStorageOp int8
+
+const (
+	LocalStorageInsert LocalStorageOp = iota
+	LocalStorageDelete LocalStorageOp = iota
+)
+
 // LocalStorage defines the LocalStorage API.
 type LocalStorage struct {
-	VM      *v8go.Isolate
-	DB      *db.KVDatabase
-	Context string
-	length  int
+	VM       *v8go.Isolate
+	DB       *db.KVDatabase
+	Context  string
+	length   int32
+	onChange func(LocalStorageOp)
 }
 
 // Init creates the key-value database
@@ -64,7 +72,14 @@ func (ls *LocalStorage) SetItemFunction() (*v8go.FunctionTemplate, error) {
 		ls.ensureDBIsOpen()
 
 		// Insert the item to the db.
-		ls.DB.Insert([]byte(key), []byte(value))
+		inserted, err := ls.DB.Insert([]byte(key), []byte(value))
+
+		if err != nil || !inserted {
+			// TODO: Throw error?
+			return nil
+		}
+
+		ls.onChange(LocalStorageInsert)
 
 		return nil
 	})
@@ -113,11 +128,31 @@ func (ls *LocalStorage) GetItemFunction() (*v8go.FunctionTemplate, error) {
 
 // GetV8Object returns the entire object structure of the V8 LocalStorage API.
 func (ls *LocalStorage) GetV8Object() (*v8go.ObjectTemplate, error) {
+	// Just initialize some of the moving parts.
+	ls.Init()
+
+	// This will contain the LocalStorage API structure.
 	localStorageObj, err := v8go.NewObjectTemplate(ls.VM)
 
 	if err != nil {
 		return nil, err
 	}
+
+	ls.onChange = func(op LocalStorageOp) {
+		if op == LocalStorageInsert {
+			ls.length += 1
+		} else {
+			ls.length -= 1
+		}
+
+		// Undate the length.
+		err := localStorageObj.Set("length", ls.length)
+
+		fmt.Println("Update", ls.length, err)
+	}
+
+	// Set the default length to whatever the amount of items in the database.
+	localStorageObj.Set("length", ls.length)
 
 	setItemFn, err := ls.SetItemFunction()
 
