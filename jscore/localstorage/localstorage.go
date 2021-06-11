@@ -89,23 +89,19 @@ func (ls *LocalStorage) SetItemFunction() (*v8go.FunctionTemplate, error) {
 		err := ls.ensureDBIsOpen()
 
 		if err != nil {
+			fmt.Println(err)
 			ls.ExecContext.RunScript("throw 'Unable to access index'", "")
 			return nil
 		}
 
 		// Check if the key is already in the DB.
-		existingData, err := ls.DB.Get([]byte(key))
-
-		if err != nil {
-			ls.ExecContext.RunScript("throw 'Unable to access DB'", "")
-			return nil
-		}
+		existingData, _ := ls.DB.Get([]byte(key))
 
 		// Insert the item to the db.
 		inserted, err := ls.DB.Insert([]byte(key), []byte(value))
 
 		if err != nil || !inserted {
-			// TODO: Throw error?
+			ls.ExecContext.RunScript("throw 'Unable to create record for key'", "")
 			return nil
 		}
 
@@ -158,6 +154,41 @@ func (ls *LocalStorage) GetItemFunction() (*v8go.FunctionTemplate, error) {
 	return getItemFn, nil
 }
 
+// RemoveItemFunction defines the function that removes an item from the DB.
+func (ls *LocalStorage) RemoveItemFunction() (*v8go.FunctionTemplate, error) {
+	removeItemFn, err := v8go.NewFunctionTemplate(ls.VM, func(info *v8go.FunctionCallbackInfo) *v8go.Value {
+		args := info.Args()
+
+		if len(args) < 1 {
+			// TODO: Figure out how to return errors here.
+			return nil
+		}
+
+		// Here we convert the key to a string.
+		key := args[0].Object().String()
+
+		ls.ensureDBIsOpen()
+
+		// Get the item to the db.
+		err := ls.DB.Delete([]byte(key))
+
+		if err != nil {
+			ls.ExecContext.RunScript("throw 'Unable to remove key'", "")
+			return nil
+		}
+
+		ls.onChange(LocalStorageDelete)
+
+		return nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return removeItemFn, nil
+}
+
 // GetV8Object returns the entire object structure of the V8 LocalStorage API.
 func (ls *LocalStorage) GetV8Object() (*v8go.ObjectTemplate, error) {
 	// Just initialize some of the moving parts.
@@ -189,6 +220,14 @@ func (ls *LocalStorage) GetV8Object() (*v8go.ObjectTemplate, error) {
 
 	localStorage.Set("getItem", getItemFn, v8go.ReadOnly)
 
+	removeItemFn, err := ls.RemoveItemFunction()
+
+	if err != nil {
+		return nil, err
+	}
+
+	localStorage.Set("removeItem", removeItemFn, v8go.ReadOnly)
+
 	return localStorage, nil
 }
 
@@ -206,6 +245,7 @@ func (ls *LocalStorage) GetJSObject() (*v8go.Object, error) {
 		return nil, err
 	}
 
+	// Define the internal onChange event handler.
 	ls.onChange = func(op LocalStorageOp) {
 		if op == LocalStorageInsert {
 			ls.length += 1
