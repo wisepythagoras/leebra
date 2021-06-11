@@ -1,9 +1,9 @@
-package js
+package jscore
 
 import (
 	"strings"
 
-	js "github.com/wisepythagoras/leebra/js/clipboard"
+	js "github.com/wisepythagoras/leebra/jscore/clipboard"
 	"github.com/wisepythagoras/leebra/system"
 	"rogchap.com/v8go"
 )

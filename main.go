@@ -4,8 +4,8 @@ import (
 	"flag"
 	"fmt"
 
-	"github.com/wisepythagoras/leebra/js"
-	ls "github.com/wisepythagoras/leebra/js/localstorage"
+	"github.com/wisepythagoras/leebra/jscore"
+	ls "github.com/wisepythagoras/leebra/jscore/localstorage"
 	"github.com/wisepythagoras/leebra/utils"
 	"go.kuoruan.net/v8go-polyfills/console"
 	"go.kuoruan.net/v8go-polyfills/fetch"
@@ -42,7 +42,7 @@ func main() {
 	obj, _ := v8go.NewObjectTemplate(vm)
 
 	// Here we create a new instance of the Navigator object.
-	navigator := &js.Navigator{
+	navigator := &jscore.Navigator{
 		VM: vm,
 	}
 	navigatorObj, _ := navigator.GetV8Object()
