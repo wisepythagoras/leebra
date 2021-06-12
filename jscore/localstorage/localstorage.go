@@ -90,7 +90,7 @@ func (ls *LocalStorage) SetItemFunction() (*v8go.FunctionTemplate, error) {
 
 		if err != nil {
 			fmt.Println(err)
-			ls.ExecContext.RunScript("throw 'Unable to access index'", "")
+			ls.ExecContext.RunScript("throw new Error('Unable to access index')", "")
 			return nil
 		}
 
@@ -101,12 +101,13 @@ func (ls *LocalStorage) SetItemFunction() (*v8go.FunctionTemplate, error) {
 		inserted, err := ls.DB.Insert([]byte(key), []byte(value))
 
 		if err != nil || !inserted {
-			ls.ExecContext.RunScript("throw 'Unable to create record for key'", "")
+			ls.ExecContext.RunScript("throw new Error('Unable to create record for key')", "")
 			return nil
 		}
 
 		if existingData == nil {
 			ls.onChange(LocalStorageInsert)
+			ls.keys = append(ls.keys, []byte(key))
 		}
 
 		return nil
@@ -165,7 +166,7 @@ func (ls *LocalStorage) RemoveItemFunction() (*v8go.FunctionTemplate, error) {
 		}
 
 		// Here we convert the key to a string.
-		key := args[0].Object().String()
+		key := args[0].String()
 
 		ls.ensureDBIsOpen()
 
@@ -173,11 +174,24 @@ func (ls *LocalStorage) RemoveItemFunction() (*v8go.FunctionTemplate, error) {
 		err := ls.DB.Delete([]byte(key))
 
 		if err != nil {
-			ls.ExecContext.RunScript("throw 'Unable to remove key'", "")
+			ls.ExecContext.RunScript("throw new Error('Unable to remove key')", "")
 			return nil
 		}
 
 		ls.onChange(LocalStorageDelete)
+
+		indexToRemove := -1
+
+		for i, lsKey := range ls.keys {
+			if string(lsKey) == key {
+				indexToRemove = i
+				break
+			}
+		}
+
+		if indexToRemove > -1 {
+			ls.keys = append(ls.keys[:indexToRemove], ls.keys[indexToRemove+1:]...)
+		}
 
 		return nil
 	})
@@ -187,6 +201,72 @@ func (ls *LocalStorage) RemoveItemFunction() (*v8go.FunctionTemplate, error) {
 	}
 
 	return removeItemFn, nil
+}
+
+// KeyFunction returns the key, given an index.
+func (ls *LocalStorage) KeyFunction() (*v8go.FunctionTemplate, error) {
+	keyFn, err := v8go.NewFunctionTemplate(ls.VM, func(info *v8go.FunctionCallbackInfo) *v8go.Value {
+		args := info.Args()
+
+		if len(args) < 1 {
+			// TODO: Figure out how to return errors here.
+			return nil
+		}
+
+		// Here we convert the idx to a string.
+		idx := args[0]
+
+		if idx.IsNullOrUndefined() {
+			return nil
+		}
+
+		intIndex := idx.Int32()
+
+		if intIndex > ls.length {
+			return nil
+		}
+
+		ls.ensureDBIsOpen()
+
+		// Create a new V8 value for the value in the db.
+		val, _ := v8go.NewValue(ls.VM, string(ls.keys[intIndex]))
+
+		return val
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return keyFn, nil
+}
+
+// ClearFunction clears all keys from the database.
+func (ls *LocalStorage) ClearFunction() (*v8go.FunctionTemplate, error) {
+	keyFn, err := v8go.NewFunctionTemplate(ls.VM, func(info *v8go.FunctionCallbackInfo) *v8go.Value {
+		if ls.length > 0 {
+			ls.ensureDBIsOpen()
+
+			for _, key := range ls.keys {
+				// Get the item to the db.
+				err := ls.DB.Delete([]byte(key))
+
+				if err != nil {
+					ls.ExecContext.RunScript("throw new Error('Unable to remove key')", "")
+				} else if ls.onChange != nil {
+					ls.onChange(LocalStorageDelete)
+				}
+			}
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return keyFn, nil
 }
 
 // GetV8Object returns the entire object structure of the V8 LocalStorage API.
@@ -227,6 +307,22 @@ func (ls *LocalStorage) GetV8Object() (*v8go.ObjectTemplate, error) {
 	}
 
 	localStorage.Set("removeItem", removeItemFn, v8go.ReadOnly)
+
+	keyFn, err := ls.KeyFunction()
+
+	if err != nil {
+		return nil, err
+	}
+
+	localStorage.Set("key", keyFn, v8go.ReadOnly)
+
+	clearFn, err := ls.ClearFunction()
+
+	if err != nil {
+		return nil, err
+	}
+
+	localStorage.Set("clear", clearFn, v8go.ReadOnly)
 
 	return localStorage, nil
 }

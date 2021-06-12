@@ -84,7 +84,6 @@ func main() {
 
 		if err != nil {
 			errs <- err
-			fmt.Println("Error", err)
 		}
 
 		vals <- val
@@ -107,7 +106,7 @@ func main() {
 			fmt.Println(val)
 		}
 	case err := <-errs:
-		err = err.(*v8go.JSError)
-		fmt.Printf("Error: %+v\n", err)
+		e := err.(*v8go.JSError)
+		fmt.Printf("%+v\n", e)
 	}
 }
