@@ -4,11 +4,8 @@ import (
 	"flag"
 	"fmt"
 
-	"github.com/wisepythagoras/leebra/jscore"
-	ls "github.com/wisepythagoras/leebra/jscore/localstorage"
+	"github.com/wisepythagoras/leebra/browser"
 	"github.com/wisepythagoras/leebra/utils"
-	"go.kuoruan.net/v8go-polyfills/console"
-	"go.kuoruan.net/v8go-polyfills/fetch"
 	"rogchap.com/v8go"
 )
 
@@ -35,60 +32,29 @@ func main() {
 		return
 	}
 
-	// Creates the new VM to run all of the code in.
-	vm, _ := v8go.NewIsolate()
-
-	// This object will create a new object on which we'll place our overrides.
-	obj, _ := v8go.NewObjectTemplate(vm)
-
-	// Here we create a new instance of the Navigator object.
-	navigator := &jscore.Navigator{
-		VM: vm,
+	domainContext := &browser.DomainContext{
+		URL: "http://127.0.0.1:8000",
 	}
 
-	localStorage := &ls.LocalStorage{
-		VM:      vm,
-		Context: "about:blank",
-	}
-	localStorage.Init()
+	err = domainContext.ParseURL()
 
-	// This adds the fetch function polyfills.
-	if err := fetch.InjectTo(vm, obj); err != nil {
-		fmt.Println("Error", err)
+	if err != nil {
+		fmt.Println(err)
+		return
 	}
 
-	// Create a new context.
-	ctx, _ := v8go.NewContext(vm, obj)
-	localStorage.ExecContext = ctx
-	navigator.ExecContext = ctx
-
-	// Inject the console polyfill.
-	if err := console.InjectTo(ctx); err != nil {
-		fmt.Println("Error", err)
+	jsContext := &browser.JSContext{
+		DomainContext: domainContext,
 	}
 
-	global := ctx.Global()
-	lsObj, _ := localStorage.GetJSObject()
-	navObj, _ := navigator.GetJSObject()
-	global.Set("navigator", navObj)
-	global.Set("localStorage", lsObj)
+	err = jsContext.Init()
 
-	// With this hack we create the window object.
-	thisObj, _ := global.Get("this")
-	global.Set("window", thisObj)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 
-	vals := make(chan *v8go.Value, 1)
-	errs := make(chan error, 1)
-
-	go func() {
-		val, err := ctx.RunScript(string(bin), *run)
-
-		if err != nil {
-			errs <- err
-		}
-
-		vals <- val
-	}()
+	vals, errs := jsContext.RunScript(bin, *run)
 
 	select {
 	case val := <-vals:
