@@ -1,3 +1,5 @@
+const what = 123;
+
 console.log(JSON, localStorage)
 console.log('Hello', what, 1, true, null, navigator.userAgent);
 

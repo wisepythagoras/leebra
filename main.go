@@ -45,8 +45,6 @@ func main() {
 	navigator := &jscore.Navigator{
 		VM: vm,
 	}
-	navigatorObj, _ := navigator.GetV8Object()
-	obj.Set("navigator", navigatorObj, v8go.ReadOnly)
 
 	localStorage := &ls.LocalStorage{
 		VM:      vm,
@@ -62,6 +60,7 @@ func main() {
 	// Create a new context.
 	ctx, _ := v8go.NewContext(vm, obj)
 	localStorage.ExecContext = ctx
+	navigator.ExecContext = ctx
 
 	// Inject the console polyfill.
 	if err := console.InjectTo(ctx); err != nil {
@@ -70,6 +69,8 @@ func main() {
 
 	global := ctx.Global()
 	lsObj, _ := localStorage.GetJSObject()
+	navObj, _ := navigator.GetJSObject()
+	global.Set("navigator", navObj)
 	global.Set("localStorage", lsObj)
 
 	// With this hack we create the window object.

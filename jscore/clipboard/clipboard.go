@@ -9,7 +9,9 @@ import (
 
 // Clipboard defines the Clipboard web API.
 type Clipboard struct {
-	VM *v8go.Isolate
+	VM           *v8go.Isolate
+	ExecContext  *v8go.Context
+	clipboardObj *v8go.Object
 }
 
 // GetReadTextFunction creates the function that reads text from the clipboard.
@@ -92,4 +94,21 @@ func (c *Clipboard) GetV8Object() (*v8go.ObjectTemplate, error) {
 	clipboardObj.Set("writeText", writeFn, v8go.ReadOnly)
 
 	return clipboardObj, nil
+}
+
+// GetJSObject returns the JS Object that can be mutated.
+func (c *Clipboard) GetJSObject() (*v8go.Object, error) {
+	clipboard, err := c.GetV8Object()
+
+	if err != nil {
+		return nil, err
+	}
+
+	c.clipboardObj, err = clipboard.NewInstance(c.ExecContext)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return c.clipboardObj, nil
 }

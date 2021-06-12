@@ -9,7 +9,9 @@ import (
 )
 
 type Navigator struct {
-	VM *v8go.Isolate
+	VM           *v8go.Isolate
+	ExecContext  *v8go.Context
+	navigatorObj *v8go.Object
 }
 
 // GetClipboardObject creates the V8 object for the Clipboard API.
@@ -75,4 +77,21 @@ func (nav *Navigator) GetV8Object() (*v8go.ObjectTemplate, error) {
 	navigatorObj.Set("clipboard", clipboardObj, v8go.ReadOnly)
 
 	return navigatorObj, nil
+}
+
+// GetJSObject returns the JS Object that can be mutated.
+func (nav *Navigator) GetJSObject() (*v8go.Object, error) {
+	navigator, err := nav.GetV8Object()
+
+	if err != nil {
+		return nil, err
+	}
+
+	nav.navigatorObj, err = navigator.NewInstance(nav.ExecContext)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return nav.navigatorObj, nil
 }
