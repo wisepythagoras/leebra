@@ -32,29 +32,15 @@ func main() {
 		return
 	}
 
-	domainContext := &browser.DomainContext{
-		URL: "http://127.0.0.1:8000",
-	}
-
-	err = domainContext.ParseURL()
+	frameContext := &browser.FrameContext{}
+	err = frameContext.Load("http://127.0.0.1:8000")
 
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	jsContext := &browser.JSContext{
-		DomainContext: domainContext,
-	}
-
-	err = jsContext.Init()
-
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	vals, errs := jsContext.RunScript(bin, *run)
+	vals, errs := frameContext.RunScript(bin, *run)
 
 	select {
 	case val := <-vals:
