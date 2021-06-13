@@ -16,9 +16,17 @@ crypto.getRandomValues(array4);
 const array5 = new Int32Array(10);
 crypto.getRandomValues(array5);
 
+const array6 = new Float32Array(10);
+crypto.getRandomValues(array6);
+
+const array7 = new Float64Array(10);
+crypto.getRandomValues(array7);
+
 console.log(array);
 console.log(array1);
 console.log(array2);
 console.log(array3);
 console.log(array4);
 console.log(array5);
+console.log(array6);
+console.log(array7);
