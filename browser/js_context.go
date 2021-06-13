@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/wisepythagoras/leebra/jscore"
+	c "github.com/wisepythagoras/leebra/jscore/crypto"
 	ls "github.com/wisepythagoras/leebra/jscore/localstorage"
 	"go.kuoruan.net/v8go-polyfills/console"
 	"go.kuoruan.net/v8go-polyfills/fetch"
@@ -31,11 +32,8 @@ func (jsc *JSContext) Init() error {
 	obj, _ := v8go.NewObjectTemplate(vm)
 
 	// Here we create a new instance of the Navigator object.
-	navigator := &jscore.Navigator{
-		VM: vm,
-	}
-
-	fmt.Println(jsc.DomainContext.GetHost())
+	navigator := &jscore.Navigator{VM: vm}
+	crypto := &c.Crypto{VM: vm}
 
 	localStorage := &ls.LocalStorage{
 		VM:      vm,
@@ -52,6 +50,7 @@ func (jsc *JSContext) Init() error {
 	jsc.ctx, _ = v8go.NewContext(vm, obj)
 	localStorage.ExecContext = jsc.ctx
 	navigator.ExecContext = jsc.ctx
+	crypto.ExecContext = jsc.ctx
 
 	// Inject the console polyfill.
 	if err := console.InjectTo(jsc.ctx); err != nil {
@@ -61,8 +60,10 @@ func (jsc *JSContext) Init() error {
 	global := jsc.ctx.Global()
 	lsObj, _ := localStorage.GetJSObject()
 	navObj, _ := navigator.GetJSObject()
+	cryptoObj, _ := crypto.GetJSObject()
 	global.Set("navigator", navObj)
 	global.Set("localStorage", lsObj)
+	global.Set("crypto", cryptoObj)
 
 	// With this hack we create the window object.
 	thisObj, _ := global.Get("this")
