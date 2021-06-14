@@ -3,11 +3,14 @@ package main
 import (
 	"flag"
 	"fmt"
+	"sync"
 
 	"github.com/wisepythagoras/leebra/browser"
 	"github.com/wisepythagoras/leebra/utils"
 	"rogchap.com/v8go"
 )
+
+var wg sync.WaitGroup
 
 func main() {
 	run := flag.String("run", "", "Runs a JavaScript file")
@@ -32,34 +35,43 @@ func main() {
 		return
 	}
 
-	frameContext := &browser.FrameContext{}
-	err = frameContext.Load("http://127.0.0.1:8000")
+	wg.Add(1)
 
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
+	// Wrap in its own go routine.
+	go func() {
+		defer wg.Done()
 
-	vals, errs := frameContext.RunScript(bin, *run)
+		frameContext := &browser.FrameContext{}
+		err = frameContext.Load("http://127.0.0.1:8000")
 
-	select {
-	case val := <-vals:
-		if val.IsPromise() {
-			prom, err := val.AsPromise()
-
-			if err != nil {
-				fmt.Println(err)
-			}
-
-			// Wait for the promise to resolve.
-			for prom.State() == v8go.Pending {
-				continue
-			}
-		} else {
-			fmt.Println(val)
+		if err != nil {
+			fmt.Println(err)
+			return
 		}
-	case err := <-errs:
-		e := err.(*v8go.JSError)
-		fmt.Printf("%+v\n", e)
-	}
+
+		vals, errs := frameContext.RunScript(bin, *run)
+
+		select {
+		case val := <-vals:
+			if val.IsPromise() {
+				prom, err := val.AsPromise()
+
+				if err != nil {
+					fmt.Println(err)
+				}
+
+				// Wait for the promise to resolve.
+				for prom.State() == v8go.Pending {
+					continue
+				}
+			} else {
+				fmt.Println(val)
+			}
+		case err := <-errs:
+			e := err.(*v8go.JSError)
+			fmt.Printf("%+v\n", e)
+		}
+	}()
+
+	wg.Wait()
 }
