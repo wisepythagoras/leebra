@@ -58,8 +58,8 @@ func (c *Crypto) GetGetRandomValuesFunction() (*v8go.FunctionTemplate, error) {
 			} else if randomValuesArr.IsUint32Array() {
 				err = valArray.SetIdx(idx, rand.Uint32())
 			} else if randomValuesArr.IsFloat32Array() {
-				// TODO: Figure out why this doesn't work.
-				err = valArray.SetIdx(idx, rand.Float32())
+				// TODO: Figure out why float32 doesn't work.
+				err = valArray.SetIdx(idx, float64(rand.Float32()))
 			} else if randomValuesArr.IsFloat64Array() {
 				err = valArray.SetIdx(idx, rand.Float64())
 			}
