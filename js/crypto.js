@@ -30,3 +30,21 @@ console.log(array4);
 console.log(array5);
 console.log(array6);
 console.log(array7);
+
+// window.crypto.subtle.generateKey(
+//     algorithm: RsaHashedKeyGenParams | EcKeyGenParams | DhKeyGenParams,
+//     extractable: boolean,
+//     keyUsages: KeyUsage[]
+// )
+
+crypto.subtle.generateKey(
+    {
+        name: 'ECDSA',
+        namedCurve: 'P-256', // One of `P-256`, `P-384`, `P-521`.
+    },
+    false,
+    ['sign', 'verify'] // Can be a combination of `sign` and `verify`.
+).then((key) => {
+    console.log('Hello, crypto world!');
+    console.log(key.privateKey.algorithm.name);
+});

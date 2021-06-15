@@ -96,6 +96,18 @@ func (c *Crypto) GetV8Object() (*v8go.ObjectTemplate, error) {
 
 	cryptoObj.Set("getRandomValues", getRandomValuesFunction)
 
+	subtle := &SubtleCrypto{
+		VM:          c.VM,
+		ExecContext: c.ExecContext,
+	}
+	subtleObj, err := subtle.GetV8Object()
+
+	if err != nil {
+		return nil, err
+	}
+
+	cryptoObj.Set("subtle", subtleObj)
+
 	return cryptoObj, nil
 }
 

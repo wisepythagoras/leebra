@@ -90,7 +90,7 @@ func (ls *LocalStorage) SetItemFunction() (*v8go.FunctionTemplate, error) {
 
 		if err != nil {
 			fmt.Println(err)
-			ls.ExecContext.RunScript("throw new Error('Unable to access index')", "")
+			info.Context().RunScript("throw new Error('Unable to access index')", "")
 			return nil
 		}
 
@@ -101,7 +101,7 @@ func (ls *LocalStorage) SetItemFunction() (*v8go.FunctionTemplate, error) {
 		inserted, err := ls.DB.Insert([]byte(key), []byte(value))
 
 		if err != nil || !inserted {
-			ls.ExecContext.RunScript("throw new Error('Unable to create record for key')", "")
+			info.Context().RunScript("throw new Error('Unable to create record for key')", "")
 			return nil
 		}
 
