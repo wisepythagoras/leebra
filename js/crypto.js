@@ -47,4 +47,5 @@ crypto.subtle.generateKey(
 ).then((key) => {
     console.log('Hello, crypto world!');
     console.log(key.privateKey.algorithm.name);
+    console.log(key.privateKey.k);
 });

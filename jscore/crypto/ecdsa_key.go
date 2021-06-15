@@ -66,10 +66,12 @@ func (e *ECDSAKey) getPrivateKeyObj() (*v8go.ObjectTemplate, error) {
 	usagesArr, _ := usagesObj.NewInstance(e.ExecContext)
 	usagesArr.SetIdx(0, "sign")
 
-	pkObj.Set("extractable", false)
-	pkObj.Set("usages", usagesArr)
-	pkObj.Set("type", "private")
-	pkObj.Set("algorithm", algoObj)
+	pkObj.Set("extractable", false, v8go.DontEnum)
+	pkObj.Set("usages", usagesArr, v8go.DontEnum)
+	pkObj.Set("type", "private", v8go.DontEnum)
+	pkObj.Set("algorithm", algoObj, v8go.DontEnum)
+	pkObj.Set("k", ECDSAEncodePrivate(e.PrivateKey), v8go.DontEnum)
+	pkObj.Set("Symbol(Symbol.toStringTag)", "CryptoKey")
 
 	return pkObj, nil
 }
