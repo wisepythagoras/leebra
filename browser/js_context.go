@@ -66,8 +66,7 @@ func (jsc *JSContext) Init() error {
 	global.Set("crypto", cryptoObj)
 
 	// With this hack we create the window object.
-	thisObj, _ := global.Get("this")
-	global.Set("window", thisObj)
+	global.Set("window", global)
 
 	return nil
 }
