@@ -7,3 +7,4 @@ const add = (a, b) => a + b;
 
 console.log(add(3, 4))
 console.log(window.navigator.userAgent);
+console.log(window === window.window, window === window.window.window);
