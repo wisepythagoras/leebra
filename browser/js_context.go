@@ -64,6 +64,12 @@ func (jsc *JSContext) Init() error {
 	global.Set("navigator", navObj)
 	global.Set("localStorage", lsObj)
 	global.Set("crypto", cryptoObj)
+	global.Set("fullscreen", false)
+	global.Set("frames", []*JSContext{})
+	global.Set("length", 0)
+	global.Set("isSecureContext", false)
+	global.Set("innerHeight", 1024)
+	global.Set("innerWidth", 768)
 
 	// With this hack we create the window object.
 	global.Set("window", global)
