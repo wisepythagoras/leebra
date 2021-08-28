@@ -1,0 +1,41 @@
+# WebAssembly Support
+
+Leebra uses [wasmer-go](https://github.com/wasmerio/wasmer-go) as its WebAssembly runtime engine. As of now, [v8go](https://github.com/rogchap/v8go) does not support array buffers, and therefore a path to the WebAssembly binary needs to be passed, instead of getting the contents with a `fetch`.
+
+## WASM Module
+
+The way I built the WebAssembly module, was this:
+
+I created a simple project with the help of `cargo`.
+
+``` sh
+cargo new --lib hello-wasm
+cd hello-wasm
+```
+
+Then I opened `src/lib.rs` and pasted the following code inside.
+
+``` rust
+#[no_mangle]
+pub extern "C" fn sum(x: i32, y: i32) -> i32 {
+    x + y
+}
+
+#[no_mangle]
+pub extern "C" fn mul(x: i32, y: i32) -> i64 {
+    (x as i64) * (y as i64)
+}
+```
+
+The above code can be built with the following command:
+
+```sh
+rustup target add wasm32-unknown-unknown
+cargo build --target wasm32-unknown-unknown --release
+```
+
+If everything went well, your module will be available at the following path:
+
+```
+target/wasm32-unknown-unknown/release/hello_wasm.wasm
+```

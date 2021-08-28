@@ -14,6 +14,10 @@ These will be built from scratch or I will use Go's [built-in HTML parser](https
 
 Leebra is using V8 as its JavaScript engine due to the ease of using it.
 
+### WebAssembly Engine
+
+This part is documented in a separate [README](jscore/wasm/README.md).
+
 ## Why?
 
 I've always wanted to learn more about browsers and thought I should write one from scratch (ish).
