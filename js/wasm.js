@@ -15,6 +15,7 @@
 
         console.log('The sum is: ', wasm.instance.exports.sum(1, 2));
         console.log('The mul is: ', wasm.instance.exports.mul(3, 2));
+        console.log(wasm.instance.exports.__heap_base.value);
     } catch(e) {
         console.log('Error!', e);
     }

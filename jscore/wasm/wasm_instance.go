@@ -69,9 +69,9 @@ func (w *WasmInstance) GetV8Object() (*v8go.ObjectTemplate, error) {
 	exportsObj, _ := v8go.NewObjectTemplate(w.VM)
 
 	for _, v := range w.WasmModule.Exports() {
-		// fmt.Println("[DEBUG]", v.Name(), v.Type().Kind())
+		kind := v.Type().Kind().String()
 
-		if v.Type().Kind().String() == "func" {
+		if kind == "func" {
 			wasmFn, err := w.InstantiateFunction(v.Name())
 
 			if err != nil {
@@ -81,6 +81,23 @@ func (w *WasmInstance) GetV8Object() (*v8go.ObjectTemplate, error) {
 
 			// Set the function on the exports object.
 			err = exportsObj.Set(v.Name(), wasmFn, v8go.ReadOnly)
+
+			if err != nil {
+				fmt.Println("[DEBUG]", err)
+			}
+		} else if kind == "global" {
+			global, err := w.WasmInstance.Exports.GetGlobal(v.Name())
+
+			if err != nil {
+				fmt.Println("[DEBUG]", err)
+				continue
+			}
+
+			obj, _ := v8go.NewObjectTemplate(w.VM)
+			value, _ := global.Get()
+			obj.Set("value", value)
+
+			err = exportsObj.Set(v.Name(), obj, v8go.ReadOnly)
 
 			if err != nil {
 				fmt.Println("[DEBUG]", err)
