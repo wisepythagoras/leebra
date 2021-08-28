@@ -7,6 +7,7 @@ import (
 	"github.com/wisepythagoras/leebra/jscore"
 	c "github.com/wisepythagoras/leebra/jscore/crypto"
 	ls "github.com/wisepythagoras/leebra/jscore/localstorage"
+	w "github.com/wisepythagoras/leebra/jscore/wasm"
 	"go.kuoruan.net/v8go-polyfills/console"
 	"go.kuoruan.net/v8go-polyfills/fetch"
 	"rogchap.com/v8go"
@@ -41,6 +42,9 @@ func (jsc *JSContext) Init() error {
 	}
 	localStorage.Init()
 
+	wasm := &w.Wasm{VM: vm}
+	wasm.NewEngine()
+
 	// This adds the fetch function polyfills.
 	if err := fetch.InjectTo(vm, obj); err != nil {
 		fmt.Println("Error", err)
@@ -51,6 +55,7 @@ func (jsc *JSContext) Init() error {
 	localStorage.ExecContext = jsc.ctx
 	navigator.ExecContext = jsc.ctx
 	crypto.ExecContext = jsc.ctx
+	wasm.ExecContext = jsc.ctx
 
 	// Inject the console polyfill.
 	if err := console.InjectTo(jsc.ctx); err != nil {
@@ -61,6 +66,7 @@ func (jsc *JSContext) Init() error {
 	lsObj, _ := localStorage.GetJSObject()
 	navObj, _ := navigator.GetJSObject()
 	cryptoObj, _ := crypto.GetJSObject()
+	wasmObj, _ := wasm.GetJSObject()
 	global.Set("navigator", navObj)
 	global.Set("localStorage", lsObj)
 	global.Set("crypto", cryptoObj)
@@ -70,6 +76,7 @@ func (jsc *JSContext) Init() error {
 	global.Set("isSecureContext", false)
 	global.Set("innerHeight", 1024)
 	global.Set("innerWidth", 768)
+	global.Set("WebAssembly", wasmObj)
 
 	// With this hack we create the window object.
 	global.Set("window", global)
