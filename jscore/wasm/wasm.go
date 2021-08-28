@@ -2,6 +2,7 @@ package jscore
 
 import (
 	"fmt"
+	"io/ioutil"
 
 	"github.com/wasmerio/wasmer-go/wasmer"
 	"rogchap.com/v8go"
@@ -24,6 +25,46 @@ func (w *Wasm) NewEngine() *wasmer.Engine {
 	return w.WasmEngine
 }
 
+func (w *Wasm) CreateInstantiateResponse(instance *wasmer.Instance, module *wasmer.Module) (*v8go.Object, error) {
+	instanceObj, err := v8go.NewObjectTemplate(w.VM)
+
+	if err != nil {
+		return nil, err
+	}
+
+	// This could be empty for now.
+	moduleObj, _ := v8go.NewObjectTemplate(w.VM)
+	instanceObj.Set("module", moduleObj, v8go.ReadOnly)
+
+	// Create the instance object.
+	v8Instance := &WasmInstance{
+		VM:           w.VM,
+		ExecContext:  w.ExecContext,
+		WasmInstance: instance,
+		WasmModule:   module,
+	}
+	v8InstanceObj, err := v8Instance.GetV8Object()
+
+	if err != nil {
+		return nil, err
+	}
+
+	err = instanceObj.Set("instance", v8InstanceObj, v8go.ReadOnly)
+
+	if err != nil {
+		fmt.Println("---", err)
+	}
+
+	// Now let's create the JS object.
+	wasmInstanceObj, err := instanceObj.NewInstance(w.ExecContext)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return wasmInstanceObj, nil
+}
+
 // InstantiateFunction allows users to compile and instantiate wasm code.
 func (w *Wasm) InstantiateFunction() (*v8go.FunctionTemplate, error) {
 	setItemFn, err := v8go.NewFunctionTemplate(w.VM, func(info *v8go.FunctionCallbackInfo) *v8go.Value {
@@ -34,7 +75,15 @@ func (w *Wasm) InstantiateFunction() (*v8go.FunctionTemplate, error) {
 			return nil
 		}
 
-		wasmCode := []byte(args[0].String())
+		// TODO: In production code, this needs to be an array buffer, or []bytes. For now I need to work with a string.
+		wasmCode := args[0].String()
+		wasmBytes, err := ioutil.ReadFile(wasmCode)
+
+		if err != nil {
+			fmt.Println(err)
+			return nil
+		}
+
 		resolver, _ := v8go.NewPromiseResolver(info.Context())
 
 		go func() {
@@ -42,7 +91,7 @@ func (w *Wasm) InstantiateFunction() (*v8go.FunctionTemplate, error) {
 			store := wasmer.NewStore(wasmEngine)
 
 			// Compile the WebAssembly code.
-			module, err := wasmer.NewModule(store, wasmCode)
+			module, err := wasmer.NewModule(store, wasmBytes)
 
 			if err != nil {
 				fmt.Println(err)
@@ -56,18 +105,18 @@ func (w *Wasm) InstantiateFunction() (*v8go.FunctionTemplate, error) {
 			importObject := wasmer.NewImportObject()
 			instance, _ := wasmer.NewInstance(module, importObject)
 
+			instantiateResp, err := w.CreateInstantiateResponse(instance, module)
+
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+
+			fmt.Println(instantiateResp.Get("module"))
+
 			// TODO: Return whatever it is that this function returns.
 			// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WebAssembly/instantiate
-			val, _ := v8go.NewValue(w.VM, true)
-			resolver.Resolve(val)
-
-			sum, err := instance.Exports.GetFunction("sum")
-
-			fmt.Println(err)
-
-			result, err := sum(1, 2)
-
-			fmt.Println(result, err)
+			resolver.Resolve(instantiateResp)
 		}()
 
 		return resolver.Value
@@ -101,13 +150,13 @@ func (w *Wasm) GetV8Object() (*v8go.ObjectTemplate, error) {
 
 // GetJSObject returns the JS Object that can be mutated.
 func (w *Wasm) GetJSObject() (*v8go.Object, error) {
-	clipboard, err := w.GetV8Object()
+	wasm, err := w.GetV8Object()
 
 	if err != nil {
 		return nil, err
 	}
 
-	w.wasmObj, err = clipboard.NewInstance(w.ExecContext)
+	w.wasmObj, err = wasm.NewInstance(w.ExecContext)
 
 	if err != nil {
 		return nil, err
