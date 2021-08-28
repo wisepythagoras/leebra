@@ -39,3 +39,28 @@ If everything went well, your module will be available at the following path:
 ```
 target/wasm32-unknown-unknown/release/hello_wasm.wasm
 ```
+
+## JavaScript Example
+
+There's a dedicated JavaScript example that lives [here](https://github.com/wisepythagoras/leebra/blob/main/js/wasm.js).
+
+### Example break-down
+
+``` js
+// The Go code will load the wasm module at the specific path.
+const wasm = await WebAssembly.instantiate('js/hello_wasm.wasm', {});
+
+// Call the `sum` function with 1 and 2 as the arguments.
+wasm.instance.exports.sum(1, 2); // This should yield 3.
+
+// Call the `mul` function with 3 and 2 as the arguments.
+wasm.instance.exports.mul(3, 2); // This should yield 6.
+
+// This gets the value of the `__heap_base` global.
+wasm.instance.exports.__heap_base.value
+```
+
+## What's missing
+
+1. The memory export,
+2. Native array buffer support so we can load through a `fetch`
