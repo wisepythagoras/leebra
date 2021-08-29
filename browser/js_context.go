@@ -68,6 +68,7 @@ func (jsc *JSContext) Init() error {
 	cryptoObj, _ := crypto.GetJSObject()
 	wasmObj, _ := wasm.GetJSObject()
 	global.Set("navigator", navObj)
+	global.Set("clientInformation", navObj)
 	global.Set("localStorage", lsObj)
 	global.Set("crypto", cryptoObj)
 	global.Set("fullscreen", false)
