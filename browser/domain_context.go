@@ -7,6 +7,7 @@ import (
 // DomainContext describes the Browser's context.
 type DomainContext struct {
 	URL    string
+	Title  string
 	URLObj *url.URL
 }
 
@@ -26,4 +27,9 @@ func (d *DomainContext) GetHost() string {
 	}
 
 	return d.URLObj.Host
+}
+
+// SetTitle updates the title string.
+func (d *DomainContext) SetTitle(title string) {
+	d.Title = title
 }

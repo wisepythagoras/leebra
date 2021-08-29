@@ -8,6 +8,7 @@ import (
 
 type FrameContext struct {
 	URL           string
+	Title         string
 	domainContext *DomainContext
 	jsContext     *JSContext
 	// HistoryManager
@@ -54,6 +55,9 @@ func (bc *FrameContext) Load(newUrl string) error {
 	if err != nil {
 		return err
 	}
+
+	// TODO: Expose this to the JS context.
+	bc.domainContext.SetTitle(newUrl)
 
 	// The JS engine has to be set up before the page load starts.
 	err = bc.InitJSEngine()
