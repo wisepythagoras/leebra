@@ -73,8 +73,8 @@ func (ls *LocalStorage) ensureDBIsOpen() error {
 }
 
 // SetItemFunction sets an item to the DB.
-func (ls *LocalStorage) SetItemFunction() (*v8go.FunctionTemplate, error) {
-	setItemFn, err := v8go.NewFunctionTemplate(ls.VM, func(info *v8go.FunctionCallbackInfo) *v8go.Value {
+func (ls *LocalStorage) SetItemFunction() *v8go.FunctionTemplate {
+	return v8go.NewFunctionTemplate(ls.VM, func(info *v8go.FunctionCallbackInfo) *v8go.Value {
 		args := info.Args()
 
 		if len(args) < 2 {
@@ -112,17 +112,11 @@ func (ls *LocalStorage) SetItemFunction() (*v8go.FunctionTemplate, error) {
 
 		return nil
 	})
-
-	if err != nil {
-		return nil, err
-	}
-
-	return setItemFn, nil
 }
 
 // GetItemFunction sets an item to the DB.
-func (ls *LocalStorage) GetItemFunction() (*v8go.FunctionTemplate, error) {
-	getItemFn, err := v8go.NewFunctionTemplate(ls.VM, func(info *v8go.FunctionCallbackInfo) *v8go.Value {
+func (ls *LocalStorage) GetItemFunction() *v8go.FunctionTemplate {
+	return v8go.NewFunctionTemplate(ls.VM, func(info *v8go.FunctionCallbackInfo) *v8go.Value {
 		args := info.Args()
 
 		if len(args) < 1 {
@@ -147,17 +141,11 @@ func (ls *LocalStorage) GetItemFunction() (*v8go.FunctionTemplate, error) {
 
 		return val
 	})
-
-	if err != nil {
-		return nil, err
-	}
-
-	return getItemFn, nil
 }
 
 // RemoveItemFunction defines the function that removes an item from the DB.
-func (ls *LocalStorage) RemoveItemFunction() (*v8go.FunctionTemplate, error) {
-	removeItemFn, err := v8go.NewFunctionTemplate(ls.VM, func(info *v8go.FunctionCallbackInfo) *v8go.Value {
+func (ls *LocalStorage) RemoveItemFunction() *v8go.FunctionTemplate {
+	return v8go.NewFunctionTemplate(ls.VM, func(info *v8go.FunctionCallbackInfo) *v8go.Value {
 		args := info.Args()
 
 		if len(args) < 1 {
@@ -195,17 +183,11 @@ func (ls *LocalStorage) RemoveItemFunction() (*v8go.FunctionTemplate, error) {
 
 		return nil
 	})
-
-	if err != nil {
-		return nil, err
-	}
-
-	return removeItemFn, nil
 }
 
 // KeyFunction returns the key, given an index.
-func (ls *LocalStorage) KeyFunction() (*v8go.FunctionTemplate, error) {
-	keyFn, err := v8go.NewFunctionTemplate(ls.VM, func(info *v8go.FunctionCallbackInfo) *v8go.Value {
+func (ls *LocalStorage) KeyFunction() *v8go.FunctionTemplate {
+	return v8go.NewFunctionTemplate(ls.VM, func(info *v8go.FunctionCallbackInfo) *v8go.Value {
 		args := info.Args()
 
 		if len(args) < 1 {
@@ -233,17 +215,11 @@ func (ls *LocalStorage) KeyFunction() (*v8go.FunctionTemplate, error) {
 
 		return val
 	})
-
-	if err != nil {
-		return nil, err
-	}
-
-	return keyFn, nil
 }
 
 // ClearFunction clears all keys from the database.
-func (ls *LocalStorage) ClearFunction() (*v8go.FunctionTemplate, error) {
-	keyFn, err := v8go.NewFunctionTemplate(ls.VM, func(info *v8go.FunctionCallbackInfo) *v8go.Value {
+func (ls *LocalStorage) ClearFunction() *v8go.FunctionTemplate {
+	return v8go.NewFunctionTemplate(ls.VM, func(info *v8go.FunctionCallbackInfo) *v8go.Value {
 		if ls.length > 0 {
 			ls.ensureDBIsOpen()
 
@@ -261,12 +237,6 @@ func (ls *LocalStorage) ClearFunction() (*v8go.FunctionTemplate, error) {
 
 		return nil
 	})
-
-	if err != nil {
-		return nil, err
-	}
-
-	return keyFn, nil
 }
 
 // GetV8Object returns the entire object structure of the V8 LocalStorage API.
@@ -275,53 +245,19 @@ func (ls *LocalStorage) GetV8Object() (*v8go.ObjectTemplate, error) {
 	ls.Init()
 
 	// This will contain the LocalStorage API structure.
-	localStorage, err := v8go.NewObjectTemplate(ls.VM)
-
-	if err != nil {
-		return nil, err
-	}
+	localStorage := v8go.NewObjectTemplate(ls.VM)
+	setItemFn := ls.SetItemFunction()
+	getItemFn := ls.GetItemFunction()
+	removeItemFn := ls.RemoveItemFunction()
+	keyFn := ls.KeyFunction()
+	clearFn := ls.ClearFunction()
 
 	// Set the default length to whatever the amount of items in the database.
 	localStorage.Set("length", ls.length)
-
-	setItemFn, err := ls.SetItemFunction()
-
-	if err != nil {
-		return nil, err
-	}
-
 	localStorage.Set("setItem", setItemFn, v8go.ReadOnly)
-
-	getItemFn, err := ls.GetItemFunction()
-
-	if err != nil {
-		return nil, err
-	}
-
 	localStorage.Set("getItem", getItemFn, v8go.ReadOnly)
-
-	removeItemFn, err := ls.RemoveItemFunction()
-
-	if err != nil {
-		return nil, err
-	}
-
 	localStorage.Set("removeItem", removeItemFn, v8go.ReadOnly)
-
-	keyFn, err := ls.KeyFunction()
-
-	if err != nil {
-		return nil, err
-	}
-
 	localStorage.Set("key", keyFn, v8go.ReadOnly)
-
-	clearFn, err := ls.ClearFunction()
-
-	if err != nil {
-		return nil, err
-	}
-
 	localStorage.Set("clear", clearFn, v8go.ReadOnly)
 
 	return localStorage, nil

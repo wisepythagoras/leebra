@@ -11,8 +11,8 @@ type SubtleCrypto struct {
 }
 
 // GetGenerateKeyFunction creates the function that generates a key.
-func (c *SubtleCrypto) GetGenerateKeyFunction() (*v8go.FunctionTemplate, error) {
-	generateKeyFn, err := v8go.NewFunctionTemplate(c.VM, func(info *v8go.FunctionCallbackInfo) *v8go.Value {
+func (c *SubtleCrypto) GetGenerateKeyFunction() *v8go.FunctionTemplate {
+	return v8go.NewFunctionTemplate(c.VM, func(info *v8go.FunctionCallbackInfo) *v8go.Value {
 		args := info.Args()
 		var algorithm *v8go.Object // *v8go.Value
 		var extractable bool
@@ -102,27 +102,12 @@ func (c *SubtleCrypto) GetGenerateKeyFunction() (*v8go.FunctionTemplate, error) 
 
 		return resolver.GetPromise().Value
 	})
-
-	if err != nil {
-		return nil, err
-	}
-
-	return generateKeyFn, nil
 }
 
 // GetV8Object gets the entire object structure of the V8 Subtle Crypto API.
 func (c *SubtleCrypto) GetV8Object() (*v8go.ObjectTemplate, error) {
-	cryptoObj, err := v8go.NewObjectTemplate(c.VM)
-
-	if err != nil {
-		return nil, err
-	}
-
-	generateKeyFunction, err := c.GetGenerateKeyFunction()
-
-	if err != nil {
-		return nil, err
-	}
+	cryptoObj := v8go.NewObjectTemplate(c.VM)
+	generateKeyFunction := c.GetGenerateKeyFunction()
 
 	cryptoObj.Set("generateKey", generateKeyFunction)
 

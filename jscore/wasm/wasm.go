@@ -26,14 +26,10 @@ func (w *Wasm) NewEngine() *wasmer.Engine {
 }
 
 func (w *Wasm) CreateInstantiateResponse(instance *wasmer.Instance, module *wasmer.Module) (*v8go.Object, error) {
-	instanceObj, err := v8go.NewObjectTemplate(w.VM)
-
-	if err != nil {
-		return nil, err
-	}
+	instanceObj := v8go.NewObjectTemplate(w.VM)
 
 	// This could be empty for now.
-	moduleObj, _ := v8go.NewObjectTemplate(w.VM)
+	moduleObj := v8go.NewObjectTemplate(w.VM)
 	instanceObj.Set("module", moduleObj, v8go.ReadOnly)
 
 	// Create the instance object.
@@ -66,8 +62,8 @@ func (w *Wasm) CreateInstantiateResponse(instance *wasmer.Instance, module *wasm
 }
 
 // InstantiateFunction allows users to compile and instantiate wasm code.
-func (w *Wasm) InstantiateFunction() (*v8go.FunctionTemplate, error) {
-	setItemFn, err := v8go.NewFunctionTemplate(w.VM, func(info *v8go.FunctionCallbackInfo) *v8go.Value {
+func (w *Wasm) InstantiateFunction() *v8go.FunctionTemplate {
+	return v8go.NewFunctionTemplate(w.VM, func(info *v8go.FunctionCallbackInfo) *v8go.Value {
 		args := info.Args()
 
 		if len(args) < 1 {
@@ -121,27 +117,12 @@ func (w *Wasm) InstantiateFunction() (*v8go.FunctionTemplate, error) {
 
 		return resolver.Value
 	})
-
-	if err != nil {
-		return nil, err
-	}
-
-	return setItemFn, nil
 }
 
 // GetV8Object gets the entire object structure of the V8 WebAssembly API.
 func (w *Wasm) GetV8Object() (*v8go.ObjectTemplate, error) {
-	wasmObj, err := v8go.NewObjectTemplate(w.VM)
-
-	if err != nil {
-		return nil, err
-	}
-
-	instantiateFn, err := w.InstantiateFunction()
-
-	if err != nil {
-		return nil, err
-	}
+	wasmObj := v8go.NewObjectTemplate(w.VM)
+	instantiateFn := w.InstantiateFunction()
 
 	wasmObj.Set("instantiate", instantiateFn, v8go.ReadOnly)
 

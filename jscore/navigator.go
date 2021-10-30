@@ -43,12 +43,7 @@ func (nav *Navigator) GetUserAgent() string {
 
 // GetV8Object creates the V8 object.
 func (nav *Navigator) GetV8Object() (*v8go.ObjectTemplate, error) {
-	navigatorObj, err := v8go.NewObjectTemplate(nav.VM)
-
-	if err != nil {
-		return nil, err
-	}
-
+	navigatorObj := v8go.NewObjectTemplate(nav.VM)
 	platform := nav.GetPlatform()
 
 	navigatorObj.Set("userAgent", nav.GetUserAgent(), v8go.ReadOnly)

@@ -14,8 +14,8 @@ type Crypto struct {
 }
 
 // GetGetRandomValuesFunction creates the function that returns random bytes.
-func (c *Crypto) GetGetRandomValuesFunction() (*v8go.FunctionTemplate, error) {
-	readFn, err := v8go.NewFunctionTemplate(c.VM, func(info *v8go.FunctionCallbackInfo) *v8go.Value {
+func (c *Crypto) GetGetRandomValuesFunction() *v8go.FunctionTemplate {
+	return v8go.NewFunctionTemplate(c.VM, func(info *v8go.FunctionCallbackInfo) *v8go.Value {
 		args := info.Args()
 		var randomValuesArr *v8go.Value
 
@@ -72,28 +72,12 @@ func (c *Crypto) GetGetRandomValuesFunction() (*v8go.FunctionTemplate, error) {
 
 		return randomValuesArr
 	})
-
-	if err != nil {
-		return nil, err
-	}
-
-	return readFn, nil
 }
 
 // GetV8Object gets the entire object structure of the V8 Crypto API.
 func (c *Crypto) GetV8Object() (*v8go.ObjectTemplate, error) {
-	cryptoObj, err := v8go.NewObjectTemplate(c.VM)
-
-	if err != nil {
-		return nil, err
-	}
-
-	getRandomValuesFunction, err := c.GetGetRandomValuesFunction()
-
-	if err != nil {
-		return nil, err
-	}
-
+	cryptoObj := v8go.NewObjectTemplate(c.VM)
+	getRandomValuesFunction := c.GetGetRandomValuesFunction()
 	cryptoObj.Set("getRandomValues", getRandomValuesFunction)
 
 	subtle := &SubtleCrypto{

@@ -22,7 +22,7 @@ func (w *WasmInstance) InstantiateFunction(name string) (*v8go.FunctionTemplate,
 		return nil, err
 	}
 
-	setItemFn, err := v8go.NewFunctionTemplate(w.VM, func(info *v8go.FunctionCallbackInfo) *v8go.Value {
+	setItemFn := v8go.NewFunctionTemplate(w.VM, func(info *v8go.FunctionCallbackInfo) *v8go.Value {
 		args := info.Args()
 		nativeArgs := make([]interface{}, 0)
 
@@ -51,22 +51,13 @@ func (w *WasmInstance) InstantiateFunction(name string) (*v8go.FunctionTemplate,
 		return val
 	})
 
-	if err != nil {
-		return nil, err
-	}
-
 	return setItemFn, nil
 }
 
 // GetV8Object gets the entire object structure of the V8 WebAssembly.Instance API.
 func (w *WasmInstance) GetV8Object() (*v8go.ObjectTemplate, error) {
-	wasmInstanceObj, err := v8go.NewObjectTemplate(w.VM)
-
-	if err != nil {
-		return nil, err
-	}
-
-	exportsObj, _ := v8go.NewObjectTemplate(w.VM)
+	wasmInstanceObj := v8go.NewObjectTemplate(w.VM)
+	exportsObj := v8go.NewObjectTemplate(w.VM)
 
 	for _, v := range w.WasmModule.Exports() {
 		kind := v.Type().Kind().String()
@@ -93,7 +84,7 @@ func (w *WasmInstance) GetV8Object() (*v8go.ObjectTemplate, error) {
 				continue
 			}
 
-			obj, _ := v8go.NewObjectTemplate(w.VM)
+			obj := v8go.NewObjectTemplate(w.VM)
 			value, _ := global.Get()
 			obj.Set("value", value)
 

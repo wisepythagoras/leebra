@@ -2,16 +2,16 @@ package browser
 
 import (
 	"errors"
-	"fmt"
 
 	"github.com/wisepythagoras/leebra/jscore"
 	c "github.com/wisepythagoras/leebra/jscore/crypto"
 	doc "github.com/wisepythagoras/leebra/jscore/document"
 	ls "github.com/wisepythagoras/leebra/jscore/localstorage"
 	w "github.com/wisepythagoras/leebra/jscore/wasm"
-	"go.kuoruan.net/v8go-polyfills/console"
-	"go.kuoruan.net/v8go-polyfills/fetch"
+
 	"rogchap.com/v8go"
+	// "go.kuoruan.net/v8go-polyfills/console"
+	// "go.kuoruan.net/v8go-polyfills/fetch"
 )
 
 // JSContext manages the JavaScript execution context.
@@ -28,10 +28,10 @@ func (jsc *JSContext) Init() error {
 	}
 
 	// Creates the new VM to run all of the code in.
-	vm, _ := v8go.NewIsolate()
+	vm := v8go.NewIsolate()
 
 	// This object will create a new object on which we'll place our overrides.
-	obj, _ := v8go.NewObjectTemplate(vm)
+	obj := v8go.NewObjectTemplate(vm)
 
 	// Here we create a new instance of the Navigator object.
 	navigator := &jscore.Navigator{VM: vm}
@@ -48,12 +48,13 @@ func (jsc *JSContext) Init() error {
 	wasm.NewEngine()
 
 	// This adds the fetch function polyfills.
-	if err := fetch.InjectTo(vm, obj); err != nil {
-		fmt.Println("Error", err)
-	}
+	// TODO: Implement natively.
+	// if err := fetch.InjectTo(vm, obj); err != nil {
+	// 	fmt.Println("Error", err)
+	// }
 
 	// Create a new context.
-	jsc.ctx, _ = v8go.NewContext(vm, obj)
+	jsc.ctx = v8go.NewContext(vm, obj)
 	localStorage.ExecContext = jsc.ctx
 	navigator.ExecContext = jsc.ctx
 	crypto.ExecContext = jsc.ctx
@@ -61,9 +62,10 @@ func (jsc *JSContext) Init() error {
 	document.ExecContext = jsc.ctx
 
 	// Inject the console polyfill.
-	if err := console.InjectTo(jsc.ctx); err != nil {
-		fmt.Println("Error", err)
-	}
+	// TODO: Implement natively.
+	// if err := console.InjectTo(jsc.ctx); err != nil {
+	// 	fmt.Println("Error", err)
+	// }
 
 	global := jsc.ctx.Global()
 	lsObj, _ := localStorage.GetJSObject()

@@ -10,5 +10,5 @@ require (
 	github.com/wasmerio/wasmer-go v1.0.4 // indirect
 	go.kuoruan.net/v8go-polyfills v0.4.0
 	golang.design/x/clipboard v0.4.6
-	rogchap.com/v8go v0.6.0
+	rogchap.com/v8go v0.6.1-0.20211028204935-ea7debf2be37
 )

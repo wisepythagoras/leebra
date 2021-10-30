@@ -45,13 +45,8 @@ func (e *ECDSAKey) GenerateKey() (*ecdsa.PrivateKey, error) {
 }
 
 func (e *ECDSAKey) getPrivateKeyObj() (*v8go.ObjectTemplate, error) {
-	pkObj, err := v8go.NewObjectTemplate(e.VM)
-
-	if err != nil {
-		return nil, err
-	}
-
-	algoObj, _ := v8go.NewObjectTemplate(e.VM)
+	pkObj := v8go.NewObjectTemplate(e.VM)
+	algoObj := v8go.NewObjectTemplate(e.VM)
 	algoObj.Set("name", "ECDSA")
 
 	if e.CurveType == ECDSAP256 {
@@ -62,7 +57,7 @@ func (e *ECDSAKey) getPrivateKeyObj() (*v8go.ObjectTemplate, error) {
 		algoObj.Set("type", "P-521")
 	}
 
-	usagesObj, _ := v8go.NewObjectTemplate(e.VM)
+	usagesObj := v8go.NewObjectTemplate(e.VM)
 	usagesArr, _ := usagesObj.NewInstance(e.ExecContext)
 	usagesArr.SetIdx(0, "sign")
 
@@ -78,18 +73,14 @@ func (e *ECDSAKey) getPrivateKeyObj() (*v8go.ObjectTemplate, error) {
 
 // GetV8Object gets the entire object structure for this ECDSA key.
 func (e *ECDSAKey) GetV8Object() (*v8go.ObjectTemplate, error) {
-	ecdsaObj, err := v8go.NewObjectTemplate(e.VM)
-
-	if err != nil {
-		return nil, err
-	}
-
+	ecdsaObj := v8go.NewObjectTemplate(e.VM)
 	privateKeyObj, err := e.getPrivateKeyObj()
 
 	if err != nil {
 		return nil, err
 	}
 
+	// Set internal here.
 	ecdsaObj.Set("privateKey", privateKeyObj)
 
 	return ecdsaObj, nil

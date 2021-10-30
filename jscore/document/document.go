@@ -13,11 +13,7 @@ type Document struct {
 
 // GetV8Object gets the entire object structure of the browser Document API.
 func (c *Document) GetV8Object() (*v8go.ObjectTemplate, error) {
-	documentObj, err := v8go.NewObjectTemplate(c.VM)
-
-	if err != nil {
-		return nil, err
-	}
+	documentObj := v8go.NewObjectTemplate(c.VM)
 
 	// TODO: Get the title from the domain or frame context.
 	documentObj.Set("title", "This is a test", v8go.ReadOnly)
