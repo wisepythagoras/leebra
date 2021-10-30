@@ -74,14 +74,7 @@ func (e *ECDSAKey) getPrivateKeyObj() (*v8go.ObjectTemplate, error) {
 // GetV8Object gets the entire object structure for this ECDSA key.
 func (e *ECDSAKey) GetV8Object() (*v8go.ObjectTemplate, error) {
 	ecdsaObj := v8go.NewObjectTemplate(e.VM)
-	privateKeyObj, err := e.getPrivateKeyObj()
-
-	if err != nil {
-		return nil, err
-	}
-
-	// TODO: Set internal here.
-	ecdsaObj.Set("privateKey", privateKeyObj)
+	ecdsaObj.SetInternalFieldCount(1)
 
 	return ecdsaObj, nil
 }
@@ -99,6 +92,11 @@ func (e *ECDSAKey) GetJSObject() (*v8go.Object, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	privateKeyObj, _ := e.getPrivateKeyObj()
+
+	// We set the private key as an internal field.
+	e.subtleObj.SetInternalField(0, privateKeyObj)
 
 	return e.subtleObj, nil
 }
