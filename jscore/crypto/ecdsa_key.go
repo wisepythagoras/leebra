@@ -80,7 +80,7 @@ func (e *ECDSAKey) GetV8Object() (*v8go.ObjectTemplate, error) {
 		return nil, err
 	}
 
-	// Set internal here.
+	// TODO: Set internal here.
 	ecdsaObj.Set("privateKey", privateKeyObj)
 
 	return ecdsaObj, nil

@@ -4,13 +4,13 @@ import (
 	"errors"
 
 	"github.com/wisepythagoras/leebra/jscore"
+	"github.com/wisepythagoras/leebra/jscore/console"
 	c "github.com/wisepythagoras/leebra/jscore/crypto"
 	doc "github.com/wisepythagoras/leebra/jscore/document"
 	ls "github.com/wisepythagoras/leebra/jscore/localstorage"
 	w "github.com/wisepythagoras/leebra/jscore/wasm"
 
 	"rogchap.com/v8go"
-	// "go.kuoruan.net/v8go-polyfills/console"
 	// "go.kuoruan.net/v8go-polyfills/fetch"
 )
 
@@ -36,6 +36,7 @@ func (jsc *JSContext) Init() error {
 	// Here we create a new instance of the Navigator object.
 	navigator := &jscore.Navigator{VM: vm}
 	crypto := &c.Crypto{VM: vm}
+	consoleInstance := &console.Console{VM: vm}
 
 	localStorage := &ls.LocalStorage{
 		VM:      vm,
@@ -60,12 +61,7 @@ func (jsc *JSContext) Init() error {
 	crypto.ExecContext = jsc.ctx
 	wasm.ExecContext = jsc.ctx
 	document.ExecContext = jsc.ctx
-
-	// Inject the console polyfill.
-	// TODO: Implement natively.
-	// if err := console.InjectTo(jsc.ctx); err != nil {
-	// 	fmt.Println("Error", err)
-	// }
+	consoleInstance.ExecContext = jsc.ctx
 
 	global := jsc.ctx.Global()
 	lsObj, _ := localStorage.GetJSObject()
@@ -73,6 +69,7 @@ func (jsc *JSContext) Init() error {
 	cryptoObj, _ := crypto.GetJSObject()
 	wasmObj, _ := wasm.GetJSObject()
 	documentObj, _ := document.GetJSObject()
+	consoleObj, _ := consoleInstance.GetJSObject()
 
 	global.Set("navigator", navObj)
 	global.Set("clientInformation", navObj)
@@ -86,6 +83,7 @@ func (jsc *JSContext) Init() error {
 	global.Set("innerWidth", 768)
 	global.Set("WebAssembly", wasmObj)
 	global.Set("document", documentObj)
+	global.Set("console", consoleObj)
 
 	// With this hack we create the window object.
 	global.Set("window", global)
