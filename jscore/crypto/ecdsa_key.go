@@ -65,7 +65,6 @@ func (e *ECDSAKey) getPrivateKeyObj() (*v8go.ObjectTemplate, error) {
 	pkObj.Set("usages", usagesArr, v8go.DontEnum)
 	pkObj.Set("type", "private", v8go.DontEnum)
 	pkObj.Set("algorithm", algoObj, v8go.DontEnum)
-	pkObj.Set("k", ECDSAEncodePrivate(e.PrivateKey), v8go.DontEnum)
 	pkObj.Set("Symbol(Symbol.toStringTag)", "CryptoKey")
 
 	return pkObj, nil
@@ -74,7 +73,14 @@ func (e *ECDSAKey) getPrivateKeyObj() (*v8go.ObjectTemplate, error) {
 // GetV8Object gets the entire object structure for this ECDSA key.
 func (e *ECDSAKey) GetV8Object() (*v8go.ObjectTemplate, error) {
 	ecdsaObj := v8go.NewObjectTemplate(e.VM)
+	privateKeyObj, err := e.getPrivateKeyObj()
+
+	if err != nil {
+		return nil, err
+	}
+
 	ecdsaObj.SetInternalFieldCount(1)
+	ecdsaObj.Set("privateKey", privateKeyObj)
 
 	return ecdsaObj, nil
 }
@@ -93,10 +99,7 @@ func (e *ECDSAKey) GetJSObject() (*v8go.Object, error) {
 		return nil, err
 	}
 
-	privateKeyObj, _ := e.getPrivateKeyObj()
-
-	// We set the private key as an internal field.
-	e.subtleObj.SetInternalField(0, privateKeyObj)
+	e.subtleObj.SetInternalField(0, ECDSAEncodePrivate(e.PrivateKey))
 
 	return e.subtleObj, nil
 }
