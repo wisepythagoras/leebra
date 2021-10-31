@@ -109,6 +109,7 @@ func (c *Console) getTimeEndFunctionCallback() *v8go.FunctionTemplate {
 		startTime, exists := c.timeMap[label]
 
 		if !exists {
+			fmt.Printf("Timer \"%s\" doesn't exist.\n", label)
 			return nil
 		}
 
@@ -116,8 +117,33 @@ func (c *Console) getTimeEndFunctionCallback() *v8go.FunctionTemplate {
 
 		fmt.Printf("%s: %dms - timer end\n", label, timeSince)
 
-		// default: 3307ms - timer ended
+		// Delete the entry to free up a timer space.
 		delete(c.timeMap, label)
+
+		return nil
+	})
+}
+
+func (c *Console) getTimeLogFunctionCallback() *v8go.FunctionTemplate {
+	c.timeMap = make(map[string]time.Time)
+
+	return v8go.NewFunctionTemplate(c.VM, func(info *v8go.FunctionCallbackInfo) *v8go.Value {
+		label := "default"
+
+		if len(info.Args()) > 0 {
+			label = info.Args()[0].String()
+		}
+
+		startTime, exists := c.timeMap[label]
+
+		if !exists {
+			fmt.Printf("Timer \"%s\" doesn't exist.\n", label)
+			return nil
+		}
+
+		timeSince := time.Since(startTime).Milliseconds()
+
+		fmt.Printf("%s: %dms\n", label, timeSince)
 
 		return nil
 	})
@@ -131,6 +157,11 @@ func (c *Console) GetV8Object() (*v8go.ObjectTemplate, error) {
 	consoleCountResetFn := c.getCountResetFunctionCallback()
 	consoleTimeFn := c.getTimeFunctionCallback()
 	consoleTimeEndFn := c.getTimeEndFunctionCallback()
+	consoleTimeLogFn := c.getTimeLogFunctionCallback()
+
+	// TODO: The following link may be useful for showing the different log
+	// outputs in different colors:
+	// https://golangbyexample.com/print-output-text-color-console/
 
 	consoleObj.Set("log", consoleLogFn)
 	consoleObj.Set("info", consoleLogFn)
@@ -141,6 +172,7 @@ func (c *Console) GetV8Object() (*v8go.ObjectTemplate, error) {
 	consoleObj.Set("countReset", consoleCountResetFn)
 	consoleObj.Set("time", consoleTimeFn)
 	consoleObj.Set("timeEnd", consoleTimeEndFn)
+	consoleObj.Set("timeLog", consoleTimeLogFn)
 
 	return consoleObj, nil
 }
