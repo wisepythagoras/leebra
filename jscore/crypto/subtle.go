@@ -1,6 +1,9 @@
 package js
 
 import (
+	"encoding/json"
+	"fmt"
+
 	"rogchap.com/v8go"
 )
 
@@ -104,12 +107,42 @@ func (c *SubtleCrypto) GetGenerateKeyFunction() *v8go.FunctionTemplate {
 	})
 }
 
+// TODO: This is a function testing the ability to work around v8go, which does not have the
+// UInt8Array implemented yet. Remove it in the future.
+func (c *SubtleCrypto) getTestFunctionCallback() *v8go.FunctionTemplate {
+	return v8go.NewFunctionTemplate(c.VM, func(info *v8go.FunctionCallbackInfo) *v8go.Value {
+		if len(info.Args()) > 0 {
+			arg := info.Args()[0]
+			m, err := arg.MarshalJSON()
+
+			if err != nil {
+				fmt.Println(err)
+				return nil
+			}
+
+			uint8Arr := make([]uint8, 0)
+			err = json.Unmarshal(m, &uint8Arr)
+
+			if err != nil {
+				fmt.Println(err)
+				return nil
+			}
+
+			fmt.Println(uint8Arr)
+		}
+
+		return nil
+	})
+}
+
 // GetV8Object gets the entire object structure of the V8 Subtle Crypto API.
 func (c *SubtleCrypto) GetV8Object() (*v8go.ObjectTemplate, error) {
 	cryptoObj := v8go.NewObjectTemplate(c.VM)
 	generateKeyFunction := c.GetGenerateKeyFunction()
+	testFn := c.getTestFunctionCallback()
 
 	cryptoObj.Set("generateKey", generateKeyFunction)
+	cryptoObj.Set("testFn", testFn)
 
 	return cryptoObj, nil
 }

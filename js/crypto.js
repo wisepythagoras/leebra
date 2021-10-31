@@ -49,3 +49,5 @@ crypto.subtle.generateKey(
     console.log(key.privateKey.algorithm.name);
     console.log(key.privateKey.k);
 });
+
+crypto.subtle.testFn([1, 2, 3, 4, 5, 6]);

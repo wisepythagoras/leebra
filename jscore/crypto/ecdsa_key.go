@@ -82,6 +82,13 @@ func (e *ECDSAKey) GetV8Object() (*v8go.ObjectTemplate, error) {
 	ecdsaObj.SetInternalFieldCount(1)
 	ecdsaObj.Set("privateKey", privateKeyObj)
 
+	// TODO: In order for us to be able to sign and verify input, we need support
+	// for UInt8Array and TextEncoder.
+	// https://developer.mozilla.org/en-US/docs/Web/API/TextEncoder
+	//
+	// Example:
+	// https://github.com/mdn/dom-examples/blob/master/web-crypto/sign-verify/ecdsa.js
+
 	return ecdsaObj, nil
 }
 
