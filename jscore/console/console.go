@@ -56,17 +56,36 @@ func (c *Console) getCountFunctionCallback() *v8go.FunctionTemplate {
 	})
 }
 
+func (c *Console) getCountResetFunctionCallback() *v8go.FunctionTemplate {
+	c.countMap = make(map[string]int)
+
+	return v8go.NewFunctionTemplate(c.VM, func(info *v8go.FunctionCallbackInfo) *v8go.Value {
+		label := "default"
+
+		if len(info.Args()) > 0 {
+			label = info.Args()[0].String()
+		}
+
+		c.countMap[label] = 0
+		fmt.Println(label, 0)
+
+		return nil
+	})
+}
+
 // GetV8Object gets the entire object structure for the console.
 func (c *Console) GetV8Object() (*v8go.ObjectTemplate, error) {
 	consoleObj := v8go.NewObjectTemplate(c.VM)
 	consoleLogFn := c.getLogFunctionCallback()
 	consoleCountFn := c.getCountFunctionCallback()
+	consoleCountResetFn := c.getCountResetFunctionCallback()
 
 	consoleObj.Set("log", consoleLogFn)
 	consoleObj.Set("info", consoleLogFn)
 	consoleObj.Set("warn", consoleLogFn)
 	consoleObj.Set("error", consoleLogFn)
 	consoleObj.Set("count", consoleCountFn)
+	consoleObj.Set("countReset", consoleCountResetFn)
 
 	return consoleObj, nil
 }
