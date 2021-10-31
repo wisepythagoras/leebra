@@ -36,6 +36,9 @@ func (c *Console) GetV8Object() (*v8go.ObjectTemplate, error) {
 	consoleLogObj := c.getLogFunctionCallback()
 
 	consoleObj.Set("log", consoleLogObj)
+	consoleObj.Set("info", consoleLogObj)
+	consoleObj.Set("warn", consoleLogObj)
+	consoleObj.Set("error", consoleLogObj)
 
 	return consoleObj, nil
 }
