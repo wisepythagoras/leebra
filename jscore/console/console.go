@@ -10,6 +10,7 @@ type Console struct {
 	VM          *v8go.Isolate
 	ExecContext *v8go.Context
 	consoleObj  *v8go.Object
+	countMap    map[string]int
 }
 
 func (c *Console) getLogFunctionCallback() *v8go.FunctionTemplate {
@@ -30,15 +31,42 @@ func (c *Console) getLogFunctionCallback() *v8go.FunctionTemplate {
 	})
 }
 
+func (c *Console) getCountFunctionCallback() *v8go.FunctionTemplate {
+	c.countMap = make(map[string]int)
+
+	return v8go.NewFunctionTemplate(c.VM, func(info *v8go.FunctionCallbackInfo) *v8go.Value {
+		label := "default"
+
+		if len(info.Args()) > 0 {
+			label = info.Args()[0].String()
+		}
+
+		count, exists := c.countMap[label]
+
+		if !exists {
+			count = 0
+		}
+
+		count += 1
+		c.countMap[label] = count
+
+		fmt.Println(label, count)
+
+		return nil
+	})
+}
+
 // GetV8Object gets the entire object structure for the console.
 func (c *Console) GetV8Object() (*v8go.ObjectTemplate, error) {
 	consoleObj := v8go.NewObjectTemplate(c.VM)
-	consoleLogObj := c.getLogFunctionCallback()
+	consoleLogFn := c.getLogFunctionCallback()
+	consoleCountFn := c.getCountFunctionCallback()
 
-	consoleObj.Set("log", consoleLogObj)
-	consoleObj.Set("info", consoleLogObj)
-	consoleObj.Set("warn", consoleLogObj)
-	consoleObj.Set("error", consoleLogObj)
+	consoleObj.Set("log", consoleLogFn)
+	consoleObj.Set("info", consoleLogFn)
+	consoleObj.Set("warn", consoleLogFn)
+	consoleObj.Set("error", consoleLogFn)
+	consoleObj.Set("count", consoleCountFn)
 
 	return consoleObj, nil
 }
