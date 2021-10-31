@@ -84,6 +84,7 @@ func (c *Console) GetV8Object() (*v8go.ObjectTemplate, error) {
 	consoleObj.Set("info", consoleLogFn)
 	consoleObj.Set("warn", consoleLogFn)
 	consoleObj.Set("error", consoleLogFn)
+	consoleObj.Set("debug", consoleLogFn)
 	consoleObj.Set("count", consoleCountFn)
 	consoleObj.Set("countReset", consoleCountResetFn)
 
