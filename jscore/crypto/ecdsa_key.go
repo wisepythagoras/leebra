@@ -88,6 +88,9 @@ func (e *ECDSAKey) GetV8Object() (*v8go.ObjectTemplate, error) {
 	//
 	// Example:
 	// https://github.com/mdn/dom-examples/blob/master/web-crypto/sign-verify/ecdsa.js
+	//
+	// More on this:
+	// https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/generateKey
 
 	return ecdsaObj, nil
 }
