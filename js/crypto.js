@@ -51,3 +51,4 @@ crypto.subtle.generateKey(
 });
 
 crypto.subtle.testFn([1, 2, 3, 4, 5, 6]);
+crypto.subtle.test2Fn(new TypeError('This is a test error'));

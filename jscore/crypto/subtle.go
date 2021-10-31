@@ -135,14 +135,34 @@ func (c *SubtleCrypto) getTestFunctionCallback() *v8go.FunctionTemplate {
 	})
 }
 
+func (c *SubtleCrypto) getTestsFunctionCallback() *v8go.FunctionTemplate {
+	return v8go.NewFunctionTemplate(c.VM, func(info *v8go.FunctionCallbackInfo) *v8go.Value {
+		if len(info.Args()) > 0 {
+			arg := info.Args()[0].Object()
+			messageVal, err := arg.Get("message")
+
+			if err != nil {
+				fmt.Println(err)
+				return nil
+			}
+
+			fmt.Println("Error ", messageVal.String())
+		}
+
+		return nil
+	})
+}
+
 // GetV8Object gets the entire object structure of the V8 Subtle Crypto API.
 func (c *SubtleCrypto) GetV8Object() (*v8go.ObjectTemplate, error) {
 	cryptoObj := v8go.NewObjectTemplate(c.VM)
 	generateKeyFunction := c.GetGenerateKeyFunction()
 	testFn := c.getTestFunctionCallback()
+	test2Fn := c.getTestsFunctionCallback()
 
 	cryptoObj.Set("generateKey", generateKeyFunction)
 	cryptoObj.Set("testFn", testFn)
+	cryptoObj.Set("test2Fn", test2Fn)
 
 	return cryptoObj, nil
 }
