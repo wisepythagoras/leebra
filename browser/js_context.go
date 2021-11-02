@@ -49,7 +49,7 @@ func (jsc *JSContext) Init() error {
 	wasm := &w.Wasm{VM: vm}
 	wasm.NewEngine()
 
-	fetchFn := net.CreateFetchFn(vm)
+	fetchFn := net.CreateFetchFn(vm, navigator)
 	obj.Set("fetch", fetchFn)
 
 	// Create a new context.
