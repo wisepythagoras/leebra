@@ -8,6 +8,7 @@ import (
 	c "github.com/wisepythagoras/leebra/jscore/crypto"
 	doc "github.com/wisepythagoras/leebra/jscore/document"
 	ls "github.com/wisepythagoras/leebra/jscore/localstorage"
+	"github.com/wisepythagoras/leebra/jscore/net"
 	w "github.com/wisepythagoras/leebra/jscore/wasm"
 
 	"rogchap.com/v8go"
@@ -48,11 +49,8 @@ func (jsc *JSContext) Init() error {
 	wasm := &w.Wasm{VM: vm}
 	wasm.NewEngine()
 
-	// This adds the fetch function polyfills.
-	// TODO: Implement natively.
-	// if err := fetch.InjectTo(vm, obj); err != nil {
-	// 	fmt.Println("Error", err)
-	// }
+	fetchFn := net.CreateFetchFn(vm)
+	obj.Set("fetch", fetchFn)
 
 	// Create a new context.
 	jsc.ctx = v8go.NewContext(vm, obj)
