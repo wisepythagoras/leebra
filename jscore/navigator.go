@@ -23,22 +23,14 @@ func (nav *Navigator) GetClipboardObject() (*v8go.ObjectTemplate, error) {
 	return clipboard.GetV8Object()
 }
 
-// GetPlatform returns the platform information.
+// GetPlatform proxy function which returns the platform information.
 func (nav *Navigator) GetPlatform() string {
-	return system.GetOS() + " " + system.GetKernelArch()
+	return GetPlatform()
 }
 
-// GetUserAgent returns the user agent string.
+// GetUserAgent proxy function which returns the user agent string.
 func (nav *Navigator) GetUserAgent() string {
-	platform := nav.GetPlatform()
-	details := strings.Join([]string{
-		system.GetFlavor(),
-		platform,
-		"rv:" + system.Version,
-	}[:], "; ")
-	browser := system.Name + "/" + system.Version
-
-	return "Mozilla/5.0 (" + details + ") Gecko/20100101 " + browser
+	return GetUserAgent()
 }
 
 // GetV8Object creates the V8 object.
@@ -89,4 +81,22 @@ func (nav *Navigator) GetJSObject() (*v8go.Object, error) {
 	}
 
 	return nav.navigatorObj, nil
+}
+
+// GetPlatform returns the platform information.
+func GetPlatform() string {
+	return system.GetOS() + " " + system.GetKernelArch()
+}
+
+// GetUserAgent returns the user agent string.
+func GetUserAgent() string {
+	platform := GetPlatform()
+	details := strings.Join([]string{
+		system.GetFlavor(),
+		platform,
+		"rv:" + system.Version,
+	}[:], "; ")
+	browser := system.Name + "/" + system.Version
+
+	return "Mozilla/5.0 (" + details + ") Gecko/20100101 " + browser
 }

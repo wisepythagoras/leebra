@@ -14,7 +14,7 @@ func responseObject(vm *v8go.Isolate) *v8go.ObjectTemplate {
 }
 
 // CreateFetchFn creates the V8 function for `fetch(input[, options])`.
-func CreateFetchFn(vm *v8go.Isolate, nav *jscore.Navigator) *v8go.FunctionTemplate {
+func CreateFetchFn(vm *v8go.Isolate) *v8go.FunctionTemplate {
 	return v8go.NewFunctionTemplate(vm, func(info *v8go.FunctionCallbackInfo) *v8go.Value {
 		args := info.Args()
 
@@ -36,7 +36,7 @@ func CreateFetchFn(vm *v8go.Isolate, nav *jscore.Navigator) *v8go.FunctionTempla
 
 			// TODO: Here there should be some loop that adds all the headers that are in the
 			// options (the second argument).
-			request.Header.Set("User-Agent", nav.GetUserAgent())
+			request.Header.Set("User-Agent", jscore.GetUserAgent())
 
 			client := &http.Client{}
 			response, err := client.Do(request)
