@@ -1,9 +1,6 @@
 package net
 
 import (
-	"net/http"
-
-	"github.com/wisepythagoras/leebra/jscore"
 	"rogchap.com/v8go"
 )
 
@@ -22,24 +19,14 @@ func CreateFetchFn(vm *v8go.Isolate) *v8go.FunctionTemplate {
 		url := args[0].String()
 
 		resolver, _ := v8go.NewPromiseResolver(info.Context())
+		var optArg *v8go.Value
+
+		if len(args) > 1 {
+			optArg = args[1]
+		}
 
 		go func() {
-			// The request method should come from the options. If there is none defined, then
-			// it can default to "GET".
-			request, err := http.NewRequest("GET", url, nil)
-
-			if err != nil {
-				errVal, _ := v8go.NewValue(vm, err.Error())
-				resolver.Reject(errVal)
-				return
-			}
-
-			// TODO: Here there should be some loop that adds all the headers that are in the
-			// options (the second argument).
-			request.Header.Set("User-Agent", jscore.GetUserAgent())
-
-			client := &http.Client{}
-			response, err := client.Do(request)
+			response, err := HTTPRequest(url, optArg)
 
 			if err != nil {
 				errVal, _ := v8go.NewValue(vm, err.Error())
