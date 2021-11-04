@@ -2,8 +2,10 @@ package browser
 
 import (
 	"errors"
+	"io/ioutil"
 	"net/http"
 
+	"github.com/wisepythagoras/leebra/dom"
 	"github.com/wisepythagoras/leebra/jscore/net"
 	"rogchap.com/v8go"
 )
@@ -75,6 +77,14 @@ func (bc *FrameContext) Load(newUrl string) error {
 	if err != nil {
 		return err
 	}
+
+	body, err := ioutil.ReadAll(bc.resp.Body)
+
+	if err != nil {
+		return err
+	}
+
+	dom.ParseHTML(body)
 
 	// TODO: Parse the HTML and load the DOM here.
 
