@@ -2,7 +2,9 @@ package browser
 
 import (
 	"errors"
+	"net/http"
 
+	"github.com/wisepythagoras/leebra/jscore/net"
 	"rogchap.com/v8go"
 )
 
@@ -11,6 +13,7 @@ type FrameContext struct {
 	Title         string
 	domainContext *DomainContext
 	jsContext     *JSContext
+	resp          *http.Response
 	// HistoryManager
 	// EventBus
 }
@@ -67,6 +70,13 @@ func (bc *FrameContext) Load(newUrl string) error {
 	}
 
 	// Somewhere over here also do the HTTP request to get the page.
+	bc.resp, err = net.HTTPRequest(newUrl, nil)
+
+	if err != nil {
+		return err
+	}
+
+	// TODO: Parse the HTML and load the DOM here.
 
 	return nil
 }

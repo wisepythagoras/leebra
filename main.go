@@ -42,7 +42,7 @@ func main() {
 		defer wg.Done()
 
 		frameContext := &browser.FrameContext{}
-		err = frameContext.Load("http://127.0.0.1:8000")
+		err = frameContext.Load("https://example.com/")
 
 		if err != nil {
 			fmt.Println(err)
