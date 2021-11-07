@@ -71,20 +71,22 @@ func (bc *FrameContext) Load(newUrl string) error {
 		return err
 	}
 
-	// Somewhere over here also do the HTTP request to get the page.
-	bc.resp, err = net.HTTPRequest(newUrl, nil)
+	if newUrl != "about:blank" {
+		// Somewhere over here also do the HTTP request to get the page.
+		bc.resp, err = net.HTTPRequest(newUrl, nil)
 
-	if err != nil {
-		return err
+		if err != nil {
+			return err
+		}
+
+		body, err := ioutil.ReadAll(bc.resp.Body)
+
+		if err != nil {
+			return err
+		}
+
+		dom.ParseHTML(body)
 	}
-
-	body, err := ioutil.ReadAll(bc.resp.Body)
-
-	if err != nil {
-		return err
-	}
-
-	dom.ParseHTML(body)
 
 	// TODO: Parse the HTML and load the DOM here.
 

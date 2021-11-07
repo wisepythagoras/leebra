@@ -2,18 +2,17 @@ package dom
 
 import (
 	"fmt"
-	"log"
 	"strings"
 
 	"golang.org/x/net/html"
 )
 
 // ParseHTML was adapted from here: https://pkg.go.dev/golang.org/x/net/html#Parse
-func ParseHTML(htmlStr []byte) {
+func ParseHTML(htmlStr []byte) error {
 	doc, err := html.Parse(strings.NewReader(string(htmlStr)))
 
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	var f func(*html.Node, string)
@@ -43,5 +42,5 @@ func ParseHTML(htmlStr []byte) {
 
 	f(doc, "")
 
-	fmt.Println("--------------")
+	return nil
 }
