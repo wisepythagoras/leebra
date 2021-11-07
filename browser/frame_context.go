@@ -5,7 +5,7 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/wisepythagoras/leebra/dom"
+	"github.com/wisepythagoras/leebra/jscore/dom"
 	"github.com/wisepythagoras/leebra/jscore/net"
 	"rogchap.com/v8go"
 )
