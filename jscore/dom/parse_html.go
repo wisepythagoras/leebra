@@ -8,19 +8,20 @@ import (
 )
 
 // ParseHTML was adapted from here: https://pkg.go.dev/golang.org/x/net/html#Parse
-func ParseHTML(htmlStr []byte) error {
+func ParseHTML(htmlStr []byte) (*Node, error) {
 	doc, err := html.Parse(strings.NewReader(string(htmlStr)))
+	// nodes := map[string]*Node
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	var f func(*html.Node, string)
+	var f func(*html.Node, string) *Node
 
-	f = func(n *html.Node, indent string) {
+	f = func(n *html.Node, indent string) *Node {
 		if n.Type == html.ElementNode {
 			// Create the DOM object here.
-			fmt.Print(indent + n.Data)
+			fmt.Print(indent+n.Data, n.Attr)
 
 			if n.FirstChild != nil && n.FirstChild.Type != html.ElementNode {
 				childData := strings.Trim(strings.Trim(n.FirstChild.Data, "\n"), " ")
@@ -34,13 +35,16 @@ func ParseHTML(htmlStr []byte) error {
 		}
 
 		newIndent := indent + "    "
+		newNode := &Node{raw: n}
+		newNode.Init()
 
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			f(c, newIndent)
+			newNode.AddChildNode(f(c, newIndent))
 		}
+
+		newNode.HTMLAttributesToAttributes(n.Attr)
+		return newNode
 	}
 
-	f(doc, "")
-
-	return nil
+	return f(doc, ""), nil
 }
