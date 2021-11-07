@@ -88,8 +88,6 @@ func (bc *FrameContext) Load(newUrl string) error {
 		dom.ParseHTML(body)
 	}
 
-	// TODO: Parse the HTML and load the DOM here.
-
 	return nil
 }
 
