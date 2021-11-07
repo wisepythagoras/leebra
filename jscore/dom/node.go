@@ -1,6 +1,10 @@
 package dom
 
-import "golang.org/x/net/html"
+import (
+	"golang.org/x/net/html"
+)
+
+// https://developer.mozilla.org/en-US/docs/Web/API/Node
 
 // Node defines what will be the Node object in JavaScript.
 type Node struct {
