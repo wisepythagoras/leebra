@@ -14,6 +14,7 @@ var wg sync.WaitGroup
 
 func main() {
 	run := flag.String("run", "", "Runs a JavaScript file")
+	url := flag.String("url", "about:blank", "The URL to load")
 
 	flag.Parse()
 
@@ -42,7 +43,7 @@ func main() {
 		defer wg.Done()
 
 		frameContext := &browser.FrameContext{}
-		err = frameContext.Load("https://example.com/")
+		err = frameContext.Load(*url)
 
 		if err != nil {
 			fmt.Println(err)
