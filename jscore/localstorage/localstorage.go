@@ -89,8 +89,8 @@ func (ls *LocalStorage) SetItemFunction() *v8go.FunctionTemplate {
 		err := ls.ensureDBIsOpen()
 
 		if err != nil {
-			fmt.Println(err)
-			info.Context().RunScript("throw new Error('Unable to access index')", "")
+			errVal, _ := v8go.NewValue(info.Context().Isolate(), "Unable to access index")
+			info.Context().Isolate().ThrowException(errVal)
 			return nil
 		}
 
@@ -101,7 +101,8 @@ func (ls *LocalStorage) SetItemFunction() *v8go.FunctionTemplate {
 		inserted, err := ls.DB.Insert([]byte(key), []byte(value))
 
 		if err != nil || !inserted {
-			info.Context().RunScript("throw new Error('Unable to create record for key')", "")
+			errVal, _ := v8go.NewValue(info.Context().Isolate(), "Unable to create record for key")
+			info.Context().Isolate().ThrowException(errVal)
 			return nil
 		}
 
@@ -162,7 +163,8 @@ func (ls *LocalStorage) RemoveItemFunction() *v8go.FunctionTemplate {
 		err := ls.DB.Delete([]byte(key))
 
 		if err != nil {
-			ls.ExecContext.RunScript("throw new Error('Unable to remove key')", "")
+			errVal, _ := v8go.NewValue(info.Context().Isolate(), "Unable to remove key")
+			info.Context().Isolate().ThrowException(errVal)
 			return nil
 		}
 
@@ -228,7 +230,8 @@ func (ls *LocalStorage) ClearFunction() *v8go.FunctionTemplate {
 				err := ls.DB.Delete([]byte(key))
 
 				if err != nil {
-					ls.ExecContext.RunScript("throw new Error('Unable to remove key')", "")
+					errVal, _ := v8go.NewValue(info.Context().Isolate(), "Unable to remove key")
+					info.Context().Isolate().ThrowException(errVal)
 				} else if ls.onChange != nil {
 					ls.onChange(LocalStorageDelete)
 				}

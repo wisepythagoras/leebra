@@ -41,8 +41,8 @@ func (w *WasmInstance) InstantiateFunction(name string) (*v8go.FunctionTemplate,
 		result, err := wasmFn(nativeArgs...)
 
 		if err != nil {
-			fmt.Println(err)
-			info.Context().RunScript("throw new Error('"+err.Error()+"')", "")
+			errVal, _ := v8go.NewValue(info.Context().Isolate(), err.Error())
+			info.Context().Isolate().ThrowException(errVal)
 			return nil
 		}
 

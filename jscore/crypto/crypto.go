@@ -34,7 +34,9 @@ func (c *Crypto) GetGetRandomValuesFunction() *v8go.FunctionTemplate {
 			!randomValuesArr.IsUint8ClampedArray() &&
 			!randomValuesArr.IsFloat32Array() &&
 			!randomValuesArr.IsFloat64Array() {
-			c.ExecContext.RunScript("throw new Error('Invalid input type')", "")
+			iso := c.ExecContext.Isolate()
+			errVal, _ := v8go.NewValue(iso, "Invalid input type")
+			iso.ThrowException(errVal)
 			return nil
 		}
 
