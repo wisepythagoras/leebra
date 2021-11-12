@@ -165,3 +165,5 @@ rogchap.com/v8go v0.6.0 h1:wNn5Iu06+ke7HM511zXTVBBpRNYaauyZoPMTrLsGurU=
 rogchap.com/v8go v0.6.0/go.mod h1:IitZnaOtWSJadY/7qinKHIEHpxsilMWyLQ+Efdo4n4I=
 rogchap.com/v8go v0.6.1-0.20211028204935-ea7debf2be37 h1:j/Rh37UOnPBX/tEvZCbizqCrepE1s5b/ttWgTO7deCA=
 rogchap.com/v8go v0.6.1-0.20211028204935-ea7debf2be37/go.mod h1:MxgP3pL2MW4dpme/72QRs8sgNMmM0pRc8DPhcuLWPAs=
+rogchap.com/v8go v0.6.1-0.20211111213939-806a853c4851 h1:rnQZ2FUzBarbgjBD1C1y9prcawOSVVnHasYviSt4OHA=
+rogchap.com/v8go v0.6.1-0.20211111213939-806a853c4851/go.mod h1:MxgP3pL2MW4dpme/72QRs8sgNMmM0pRc8DPhcuLWPAs=
