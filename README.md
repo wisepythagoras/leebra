@@ -20,7 +20,7 @@ Usage of ./leebra:
 
 To just run a JavaScript file, all you need to do is run the following:
 
-``` js
+``` sh
 ./leebra -run path/to/js/file.js
 ```
 
