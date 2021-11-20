@@ -82,6 +82,8 @@ github.com/tklauser/numcpus v0.2.2/go.mod h1:x3qojaO3uyYt0i56EW/VUYs7uBvdl2fkfZF
 github.com/ugorji/go/codec v0.0.0-20181204163529-d75b2dcb6bc8/go.mod h1:VFNgLljTbGfSG7qAOspJ7OScBnGdDN/yBr0sguwnwf0=
 github.com/wasmerio/wasmer-go v1.0.4 h1:MnqHoOGfiQ8MMq2RF6wyCeebKOe84G88h5yv+vmxJgs=
 github.com/wasmerio/wasmer-go v1.0.4/go.mod h1:0gzVdSfg6pysA6QVp6iVRPTagC6Wq9pOE8J86WKb2Fk=
+github.com/wisepythagoras/go-lexbor v0.0.0-20211120021934-3dbf81bdfacd h1:Q/j7E0JE/XjE5XxClf0GfX0ogsY1nFe+xOvnVF0Q2bY=
+github.com/wisepythagoras/go-lexbor v0.0.0-20211120021934-3dbf81bdfacd/go.mod h1:RL8hTgsRev/RJl5LHtcLUkPUYOSq63qWzy+4YdJ70D0=
 github.com/xordataexchange/crypt v0.0.3-0.20170626215501-b2862e3d0a77/go.mod h1:aYKd//L2LvnjZzWKhF00oedf4jCCReLcmhLdhm1A27Q=
 github.com/yuin/goldmark v1.1.27/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 github.com/yuin/goldmark v1.2.1/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
@@ -167,3 +169,5 @@ rogchap.com/v8go v0.6.1-0.20211028204935-ea7debf2be37 h1:j/Rh37UOnPBX/tEvZCbizqC
 rogchap.com/v8go v0.6.1-0.20211028204935-ea7debf2be37/go.mod h1:MxgP3pL2MW4dpme/72QRs8sgNMmM0pRc8DPhcuLWPAs=
 rogchap.com/v8go v0.6.1-0.20211111213939-806a853c4851 h1:rnQZ2FUzBarbgjBD1C1y9prcawOSVVnHasYviSt4OHA=
 rogchap.com/v8go v0.6.1-0.20211111213939-806a853c4851/go.mod h1:MxgP3pL2MW4dpme/72QRs8sgNMmM0pRc8DPhcuLWPAs=
+rogchap.com/v8go v0.6.1-0.20211119215302-ef77cadc3551 h1:UEoBgfEuiQQRaoqhF84WIOvDCsfXIgaa5cexT6YwVag=
+rogchap.com/v8go v0.6.1-0.20211119215302-ef77cadc3551/go.mod h1:MxgP3pL2MW4dpme/72QRs8sgNMmM0pRc8DPhcuLWPAs=

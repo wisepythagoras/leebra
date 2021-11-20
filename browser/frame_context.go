@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"net/http"
 
+	"github.com/wisepythagoras/go-lexbor/html"
 	"github.com/wisepythagoras/leebra/jscore/dom"
 	"github.com/wisepythagoras/leebra/jscore/net"
 	"rogchap.com/v8go"
@@ -16,6 +17,7 @@ type FrameContext struct {
 	domainContext *DomainContext
 	jsContext     *JSContext
 	resp          *http.Response
+	document      *html.Document
 	// HistoryManager
 	// EventBus
 }
@@ -36,6 +38,7 @@ func (bc *FrameContext) InitJSEngine() error {
 	// Create the JS engine context and then initialize it.
 	bc.jsContext = &JSContext{
 		DomainContext: bc.domainContext,
+		document:      bc.document,
 	}
 
 	// The init function will attach all of the browser APIs on it.
@@ -64,13 +67,6 @@ func (bc *FrameContext) Load(newUrl string) error {
 	// TODO: Expose this to the JS context.
 	bc.domainContext.SetTitle(newUrl)
 
-	// The JS engine has to be set up before the page load starts.
-	err = bc.InitJSEngine()
-
-	if err != nil {
-		return err
-	}
-
 	if newUrl != "about:blank" {
 		// Somewhere over here also do the HTTP request to get the page.
 		bc.resp, err = net.HTTPRequest(newUrl, nil)
@@ -85,7 +81,18 @@ func (bc *FrameContext) Load(newUrl string) error {
 			return err
 		}
 
-		dom.ParseHTML(body)
+		bc.document, err = dom.ParseHTML(body)
+
+		if err != nil {
+			return err
+		}
+	}
+
+	// The JS engine has to be set up before the page load starts.
+	err = bc.InitJSEngine()
+
+	if err != nil {
+		return err
 	}
 
 	return nil

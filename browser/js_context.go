@@ -3,10 +3,11 @@ package browser
 import (
 	"errors"
 
+	"github.com/wisepythagoras/go-lexbor/html"
 	"github.com/wisepythagoras/leebra/jscore"
 	"github.com/wisepythagoras/leebra/jscore/console"
 	c "github.com/wisepythagoras/leebra/jscore/crypto"
-	doc "github.com/wisepythagoras/leebra/jscore/document"
+	"github.com/wisepythagoras/leebra/jscore/document"
 	ls "github.com/wisepythagoras/leebra/jscore/localstorage"
 	"github.com/wisepythagoras/leebra/jscore/net"
 	w "github.com/wisepythagoras/leebra/jscore/wasm"
@@ -19,6 +20,7 @@ import (
 type JSContext struct {
 	DomainContext *DomainContext
 	ctx           *v8go.Context
+	document      *html.Document
 }
 
 // Init must be run right after the creation of the JSContext instance so that scripts
@@ -45,7 +47,10 @@ func (jsc *JSContext) Init() error {
 	}
 	localStorage.Init()
 
-	document := &doc.Document{VM: vm}
+	document := &document.Document{
+		VM:       vm,
+		Document: jsc.document,
+	}
 	wasm := &w.Wasm{VM: vm}
 	wasm.NewEngine()
 

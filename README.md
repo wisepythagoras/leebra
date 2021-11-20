@@ -28,6 +28,15 @@ There are plenty of JavaScript examples in the [js folder](js).
 
 Also, you can supply a url with the `-url` command line argument. For now, this doesn't do much; it will only download the page and attempt to - at some level - parse the HTML and create DOM objects from it.
 
+http://lexbor.com/docs/lexbor/
+https://github.com/lexbor/lexbor
+
+https://blog.gopheracademy.com/advent-2014/parsers-lexers/
+https://about.sourcegraph.com/go/gophercon-2018-how-to-write-a-parser-in-go/
+https://adampresley.github.io/2015/04/12/writing-a-lexer-and-parser-in-go-part-1.html
+https://adampresley.github.io/2015/05/12/writing-a-lexer-and-parser-in-go-part-2.html
+https://adampresley.github.io/2015/06/01/writing-a-lexer-and-parser-in-go-part-3.html
+
 ## How it works
 
 The browser is built mostly from scratch.

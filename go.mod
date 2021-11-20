@@ -8,9 +8,10 @@ require (
 	github.com/shirou/gopsutil v3.21.5+incompatible
 	github.com/tklauser/go-sysconf v0.3.6 // indirect
 	github.com/wasmerio/wasmer-go v1.0.4 // indirect
+	github.com/wisepythagoras/go-lexbor v0.0.0-20211120021934-3dbf81bdfacd // indirect
 	go.kuoruan.net/v8go-polyfills v0.4.0
 	golang.design/x/clipboard v0.4.6
 	golang.org/x/net v0.0.0-20211101193420-4a448f8816b3 // indirect
 	golang.org/x/sys v0.0.0-20211103235746-7861aae1554b // indirect
-	rogchap.com/v8go v0.6.1-0.20211111213939-806a853c4851
+	rogchap.com/v8go v0.6.1-0.20211119215302-ef77cadc3551
 )

@@ -78,7 +78,8 @@ func (ls *LocalStorage) SetItemFunction() *v8go.FunctionTemplate {
 		args := info.Args()
 
 		if len(args) < 2 {
-			// TODO: Figure out how to return errors here.
+			val, _ := v8go.NewValue(ls.VM, "Expected arguments")
+			ls.VM.ThrowException(val)
 			return nil
 		}
 
@@ -121,7 +122,8 @@ func (ls *LocalStorage) GetItemFunction() *v8go.FunctionTemplate {
 		args := info.Args()
 
 		if len(args) < 1 {
-			// TODO: Figure out how to return errors here.
+			val, _ := v8go.NewValue(ls.VM, "Expected argument")
+			ls.VM.ThrowException(val)
 			return nil
 		}
 
@@ -150,7 +152,8 @@ func (ls *LocalStorage) RemoveItemFunction() *v8go.FunctionTemplate {
 		args := info.Args()
 
 		if len(args) < 1 {
-			// TODO: Figure out how to return errors here.
+			val, _ := v8go.NewValue(ls.VM, "Expected argument")
+			ls.VM.ThrowException(val)
 			return nil
 		}
 
@@ -193,7 +196,8 @@ func (ls *LocalStorage) KeyFunction() *v8go.FunctionTemplate {
 		args := info.Args()
 
 		if len(args) < 1 {
-			// TODO: Figure out how to return errors here.
+			val, _ := v8go.NewValue(ls.VM, "Expected argument")
+			ls.VM.ThrowException(val)
 			return nil
 		}
 
