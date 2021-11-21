@@ -50,6 +50,7 @@ func (jsc *JSContext) Init() error {
 	document := &document.Document{
 		VM:       vm,
 		Document: jsc.document,
+		URL:      jsc.DomainContext.URL,
 	}
 	wasm := &w.Wasm{VM: vm}
 	wasm.NewEngine()

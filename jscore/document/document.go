@@ -1,9 +1,8 @@
 package document
 
 import (
-	"fmt"
-
 	"github.com/wisepythagoras/go-lexbor/html"
+	"github.com/wisepythagoras/leebra/jscore/dom"
 	"rogchap.com/v8go"
 )
 
@@ -12,6 +11,7 @@ type Document struct {
 	VM          *v8go.Isolate
 	ExecContext *v8go.Context
 	Document    *html.Document
+	URL         string
 	documentObj *v8go.Object
 }
 
@@ -25,15 +25,28 @@ func (c *Document) GetElementByIdFunction() *v8go.FunctionTemplate {
 			c.VM.ThrowException(val)
 			return nil
 		}
-		fmt.Println(c.Document)
 
-		element, _ := c.Document.GetElementById(args[0].String())
+		element, err := c.Document.GetElementById(args[0].String())
 
-		if element != nil {
-			html.Serialize(element.Node())
+		if err != nil {
+			errVal, _ := v8go.NewValue(c.VM, err.Error())
+			c.VM.ThrowException(errVal)
+			return nil
 		}
 
-		return nil
+		node := &dom.Node{
+			VM:          c.VM,
+			ExecContext: c.ExecContext,
+			Document:    c.Document,
+			Element:     element,
+			URL:         c.URL,
+		}
+
+		nodeObj, _ := node.GetJSObject()
+
+		// html.Serialize(element.Node())
+
+		return nodeObj.Value
 	})
 }
 
