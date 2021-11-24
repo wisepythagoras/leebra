@@ -44,11 +44,12 @@ func (n *Node) Parent() *Node {
 // GetV8Object gets the entire object structure of the browser Document API.
 func (n *Node) GetV8Object(withParent bool) (*v8go.ObjectTemplate, error) {
 	nodeObj := v8go.NewObjectTemplate(n.VM)
+	children := n.Element.Node().Children()
 
 	nodeObj.Set("accessKey", "", v8go.ReadOnly)
 	nodeObj.Set("accessKeyLabel", "", v8go.ReadOnly)
 	nodeObj.Set("baseURI", n.URL, v8go.ReadOnly)
-	nodeObj.Set("childElementCount", 1, v8go.ReadOnly)
+	nodeObj.Set("childElementCount", uint32(len(children)), v8go.ReadOnly)
 	nodeObj.Set("className", n.ClassName(), v8go.ReadOnly)
 
 	// TODO: This should be done with getters and setters, instead of calling it this way. This
