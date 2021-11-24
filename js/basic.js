@@ -15,4 +15,5 @@ const el = document.getElementById('nav-footer');
 
 if (el) {
     console.log("Class name:", el.className);
+    console.log(el.parentNode)
 }

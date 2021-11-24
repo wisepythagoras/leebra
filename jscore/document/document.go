@@ -42,7 +42,7 @@ func (c *Document) GetElementByIdFunction() *v8go.FunctionTemplate {
 			URL:         c.URL,
 		}
 
-		nodeObj, _ := node.GetJSObject()
+		nodeObj, _ := node.GetJSObject(true)
 
 		// html.Serialize(element.Node())
 

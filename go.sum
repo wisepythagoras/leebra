@@ -84,6 +84,10 @@ github.com/wasmerio/wasmer-go v1.0.4 h1:MnqHoOGfiQ8MMq2RF6wyCeebKOe84G88h5yv+vmx
 github.com/wasmerio/wasmer-go v1.0.4/go.mod h1:0gzVdSfg6pysA6QVp6iVRPTagC6Wq9pOE8J86WKb2Fk=
 github.com/wisepythagoras/go-lexbor v0.0.0-20211120021934-3dbf81bdfacd h1:Q/j7E0JE/XjE5XxClf0GfX0ogsY1nFe+xOvnVF0Q2bY=
 github.com/wisepythagoras/go-lexbor v0.0.0-20211120021934-3dbf81bdfacd/go.mod h1:RL8hTgsRev/RJl5LHtcLUkPUYOSq63qWzy+4YdJ70D0=
+github.com/wisepythagoras/go-lexbor v0.0.0-20211124014937-ef0fbe061b93 h1:XIWnXTPmsutxCAlxhwKtCYbPw/tI+ap3FkRCMQOMUvo=
+github.com/wisepythagoras/go-lexbor v0.0.0-20211124014937-ef0fbe061b93/go.mod h1:RL8hTgsRev/RJl5LHtcLUkPUYOSq63qWzy+4YdJ70D0=
+github.com/wisepythagoras/go-lexbor v0.0.0-20211124015943-d444aa60ad4c h1:huJo/b465dOiVryOPRWJJseIKpM6qt3P9phZXQHvoKI=
+github.com/wisepythagoras/go-lexbor v0.0.0-20211124015943-d444aa60ad4c/go.mod h1:RL8hTgsRev/RJl5LHtcLUkPUYOSq63qWzy+4YdJ70D0=
 github.com/xordataexchange/crypt v0.0.3-0.20170626215501-b2862e3d0a77/go.mod h1:aYKd//L2LvnjZzWKhF00oedf4jCCReLcmhLdhm1A27Q=
 github.com/yuin/goldmark v1.1.27/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 github.com/yuin/goldmark v1.2.1/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
