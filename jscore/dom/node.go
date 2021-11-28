@@ -41,16 +41,42 @@ func (n *Node) Parent() *Node {
 	}
 }
 
+func (n *Node) Children() []*Node {
+	childNodes := make([]*Node, 0)
+	children := n.Element.Node().Children()
+
+	for _, child := range children {
+		childNode := &Node{
+			VM:          n.VM,
+			ExecContext: n.ExecContext,
+			Document:    n.Document,
+			Element:     child.Element(),
+			URL:         n.URL,
+		}
+		childNodes = append(childNodes, childNode)
+	}
+
+	return childNodes
+}
+
 // GetV8Object gets the entire object structure of the browser Document API.
 func (n *Node) GetV8Object(withParent bool) (*v8go.ObjectTemplate, error) {
 	nodeObj := v8go.NewObjectTemplate(n.VM)
-	children := n.Element.Node().Children()
+	childObjs := v8go.NewObjectTemplate(n.VM)
+	childJSObjs, _ := childObjs.NewInstance(n.ExecContext)
+	children := n.Children()
 
-	nodeObj.Set("accessKey", "", v8go.ReadOnly)
-	nodeObj.Set("accessKeyLabel", "", v8go.ReadOnly)
-	nodeObj.Set("baseURI", n.URL, v8go.ReadOnly)
-	nodeObj.Set("childElementCount", uint32(len(children)), v8go.ReadOnly)
-	nodeObj.Set("className", n.ClassName(), v8go.ReadOnly)
+	for i, child := range children {
+		childObj, _ := child.GetV8Object(false)
+		childJSObjs.SetIdx(uint32(i), childObj)
+	}
+
+	nodeObj.Set("accessKey", "", v8go.DontDelete)
+	nodeObj.Set("accessKeyLabel", "", v8go.DontDelete)
+	nodeObj.Set("baseURI", n.URL, v8go.DontDelete)
+	nodeObj.Set("childElementCount", uint32(len(children)), v8go.DontDelete)
+	nodeObj.Set("children", childObjs, v8go.DontDelete)
+	nodeObj.Set("className", n.ClassName(), v8go.DontDelete)
 
 	// TODO: This should be done with getters and setters, instead of calling it this way. This
 	// code can cause issues if we let it run for every node object that's constructed. Working
@@ -62,10 +88,10 @@ func (n *Node) GetV8Object(withParent bool) (*v8go.ObjectTemplate, error) {
 			parentObj, err := parent.GetV8Object(false)
 
 			if err == nil {
-				nodeObj.Set("parentNode", parentObj, v8go.ReadOnly)
+				nodeObj.Set("parentNode", parentObj, v8go.DontDelete)
 			}
 		} else {
-			nodeObj.Set("parentNode", nil, v8go.ReadOnly)
+			nodeObj.Set("parentNode", nil, v8go.DontDelete)
 		}
 	}
 
