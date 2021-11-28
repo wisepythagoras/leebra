@@ -19,4 +19,6 @@ if (el) {
     console.log(el.children, el.children.length);
 
     Object.keys(el).forEach(console.log);
+
+    console.log('Class name of 1st child:', el.firstChild.className);
 }

@@ -59,12 +59,29 @@ func (n *Node) Children() []*Node {
 	return childNodes
 }
 
+func (n *Node) FirstChild() *Node {
+	firstChild := n.Element.Node().FirstChild()
+
+	if firstChild == nil {
+		return nil
+	}
+
+	return &Node{
+		VM:          n.VM,
+		ExecContext: n.ExecContext,
+		Document:    n.Document,
+		Element:     firstChild.Element(),
+		URL:         n.URL,
+	}
+}
+
 // GetV8Object gets the entire object structure of the browser Document API.
 func (n *Node) GetV8Object(withParent bool) (*v8go.ObjectTemplate, error) {
 	nodeObj := v8go.NewObjectTemplate(n.VM)
 	childObjs := v8go.NewObjectTemplate(n.VM)
 	childJSObjs, _ := childObjs.NewInstance(n.ExecContext)
 	children := n.Children()
+	firstChild := n.FirstChild()
 
 	for i, child := range children {
 		childObj, _ := child.GetV8Object(false)
@@ -77,6 +94,12 @@ func (n *Node) GetV8Object(withParent bool) (*v8go.ObjectTemplate, error) {
 	nodeObj.Set("childElementCount", uint32(len(children)), v8go.DontDelete)
 	nodeObj.Set("children", childObjs, v8go.DontDelete)
 	nodeObj.Set("className", n.ClassName(), v8go.DontDelete)
+	nodeObj.Set("firstChild", v8go.Null(n.VM), v8go.DontDelete)
+
+	if firstChild != nil {
+		firstChildObj, _ := firstChild.GetV8Object(false)
+		nodeObj.Set("firstChild", firstChildObj, v8go.DontDelete)
+	}
 
 	// TODO: This should be done with getters and setters, instead of calling it this way. This
 	// code can cause issues if we let it run for every node object that's constructed. Working
