@@ -177,3 +177,7 @@ rogchap.com/v8go v0.6.1-0.20211119215302-ef77cadc3551 h1:UEoBgfEuiQQRaoqhF84WIOv
 rogchap.com/v8go v0.6.1-0.20211119215302-ef77cadc3551/go.mod h1:MxgP3pL2MW4dpme/72QRs8sgNMmM0pRc8DPhcuLWPAs=
 rogchap.com/v8go v0.6.1-0.20211122225043-f55271dc683f h1:6aX+0T83FpVNkYDOH/z3s7UmruHA+PL8FdVcZHqybbk=
 rogchap.com/v8go v0.6.1-0.20211122225043-f55271dc683f/go.mod h1:MxgP3pL2MW4dpme/72QRs8sgNMmM0pRc8DPhcuLWPAs=
+rogchap.com/v8go v0.7.0 h1:kgjbiO4zE5itA962ze6Hqmbs4HgZbGzmueCXsZtremg=
+rogchap.com/v8go v0.7.0/go.mod h1:MxgP3pL2MW4dpme/72QRs8sgNMmM0pRc8DPhcuLWPAs=
+rogchap.com/v8go v0.7.1-0.20211222204845-a0417adbcce5 h1:h6kcV9IdeaSnXPtMsFI0TTm/WdkN30x6eLKDWk9tRBs=
+rogchap.com/v8go v0.7.1-0.20211222204845-a0417adbcce5/go.mod h1:MxgP3pL2MW4dpme/72QRs8sgNMmM0pRc8DPhcuLWPAs=
